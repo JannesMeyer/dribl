@@ -8,6 +8,9 @@
         android:minSdkVersion="11"
         android:targetSdkVersion="17" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_USER_DICTIONARY" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -16,12 +19,22 @@
         <activity
             android:name="de.hsbremen.android.dribl.MainActivity"
             android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="de.hsbremen.android.dribl.ApiTestActivity"
+            android:label="@string/title_activity_api_test" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="de.hsbremen.android.dribl.provider.PicturesContentProvider"
+            android:authorities="de.hsbremen.android.dribl.provider"
+            android:exported="false" >
+        </provider>
     </application>
 
 </manifest>

@@ -4,5 +4,7 @@
     <string name="app_name">Dribl</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="title_activity_api_test">ApiTestActivity</string>
+    <string name="loading">Loading data…</string>
 
 </resources>
