@@ -1,0 +1,19 @@
+# Android development
+gen/
+*.apk
+*.ap_
+*.dex
+
+# Eclipse
+bin/
+.metadata/
+local.properties
+
+# Mac OS X
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# OpenOffice
+.~lock*
