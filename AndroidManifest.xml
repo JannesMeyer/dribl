@@ -22,8 +22,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity 
-            android:name="de.hsbremen.android.dribl.SideMenuList" >
+        <activity android:name="de.hsbremen.android.dribl.SideMenuList" >
+        </activity>
+        <activity
+            android:name="de.hsbremen.android.dribl.ContentFragment"
+            android:label="@string/title_activity_content_fragment" >
         </activity>
     </application>
 

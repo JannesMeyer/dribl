@@ -1,71 +1,114 @@
 package de.hsbremen.android.dribl;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.Menu;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
-
-import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 public class MainActivity extends Activity {
-	
-	public SlidingMenu slideMenu = null;
-	public ListView sideList = null;
-	
+
+	private String[] mListItems;
+	private ListView mDrawerList;
+	private CharSequence mDrawerTitle;
+	private CharSequence mTitle;
+	private DrawerLayout mDrawerLayout;
+	private ActionBarDrawerToggle mDrawerToggle;
 	
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+    
+        mTitle = mDrawerTitle = getTitle();
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.open_drawer, R.string.close_drawer) {
+        	public void onDrawerOpened(View drawerView) {
+        		getActionBar().setTitle(mDrawerTitle);
+        		invalidateOptionsMenu();
+        	}
+        	
+        	public void onDrawerClosed(View view) {
+        		getActionBar().setTitle(mTitle);
+        		invalidateOptionsMenu();
+        	}
+        };
         
-        slideMenu = new SlidingMenu(this);
+        // drawerToggle as drawerListener
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
         
-        slideMenu.setMenu(R.layout.layout_sidemenu);
-        slideMenu.setMode(SlidingMenu.LEFT);
-        slideMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-        slideMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
-        slideMenu.setBehindOffsetRes(R.dimen.slidemenu_offset);
-        sideList = (ListView) slideMenu.findViewById(R.id.sideList);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.menu_items));
-        sideList.setAdapter(adapter);
-        slideMenu.isSecondaryMenuShowing();
-    }
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
-	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+        
+        mListItems = getResources().getStringArray(R.array.menu_items);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, mListItems);
+        mDrawerList.setAdapter(adapter);
+        
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
     }
     
-    public void onButtonClick(View view) {
-    	switch (view.getId()) {
-		case R.id.btn_sidebar_open:
-			slideMenu.showMenu();
-			break;
+    private class DrawerItemClickListener implements OnItemClickListener {
+    	@Override
+    	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    		selectItem(position);
+    	}
 
-		default:
-			break;
-		}
+    }
+
+    private void selectItem(int position) {
+    	Fragment fragment = new ContentFragment();
+    	FragmentManager fragmentManager = getFragmentManager();
+    	fragmentManager.beginTransaction().
+    					replace(R.id.content_frame, fragment).
+    					commit();
+    	
+    	// highlight selected item
+    	mDrawerList.setItemChecked(position, true);
+    	
+    	// set actionbar title according to selected item
+    	setTitle(mListItems[position]);
+    	
+    	// close drawer on itemClick
+    	mDrawerLayout.closeDrawer(mDrawerList);
     }
 
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		// close the sidemenu on backbutton click
-		if (slideMenu.isMenuShowing()) {
-			if (keyCode == KeyEvent.KEYCODE_BACK) {
-				slideMenu.showContent();
-				Toast.makeText(this, "close menu", Toast.LENGTH_SHORT).show();
-				return true;
-			}
+	public void setTitle(CharSequence title) {
+		mTitle = title;
+		getActionBar().setTitle(mTitle);
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		mDrawerToggle.onConfigurationChanged(newConfig);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (mDrawerToggle.onOptionsItemSelected(item)) {
+			return true;
 		}
-		
-		return super.onKeyDown(keyCode, event);
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		mDrawerToggle.syncState();
 	}
     
     
+
+        
 }
