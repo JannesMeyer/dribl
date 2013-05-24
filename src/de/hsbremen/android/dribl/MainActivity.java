@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,10 +17,7 @@ import android.widget.ListView;
 
 public class MainActivity extends Activity {
 
-	private String[] mListItems;
 	private ListView mDrawerList;
-	private CharSequence mDrawerTitle;
-	private CharSequence mTitle;
 	private DrawerLayout mDrawerLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
 	
@@ -27,66 +25,61 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-    
-        mTitle = mDrawerTitle = getTitle();
+        // Enable home button
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        
+        // Get views
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        
+        // NavigationDrawer
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.open_drawer, R.string.close_drawer) {
         	public void onDrawerOpened(View drawerView) {
-        		getActionBar().setTitle(mDrawerTitle);
         		invalidateOptionsMenu();
         	}
-        	
         	public void onDrawerClosed(View view) {
-        		getActionBar().setTitle(mTitle);
         		invalidateOptionsMenu();
         	}
         };
-        
-        // drawerToggle as drawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-
-        
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        mListItems = getResources().getStringArray(R.array.menu_items);
-        
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, mListItems);
+        // Set list contents
+        String[] listItems = getResources().getStringArray(R.array.menu_items);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, listItems);
         mDrawerList.setAdapter(adapter);
-        
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-    }
-    
-    private class DrawerItemClickListener implements OnItemClickListener {
-    	@Override
-    	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    		selectItem(position);
-    	}
-
+        
+        // Set inital fragment
+        selectItem(0);
     }
 
+    /**
+     * Switches the contents of the FrameLayout
+     * 
+     * @param position
+     */
     private void selectItem(int position) {
-    	Fragment fragment = new ContentFragment();
-    	FragmentManager fragmentManager = getFragmentManager();
-    	fragmentManager.beginTransaction().
-    					replace(R.id.content_frame, fragment).
-    					commit();
+    	Fragment newFragment;
+    	switch (position) {
+    	case 0:
+    		newFragment = new ApiTestFragment();
+    		break;
+    	default:
+    		newFragment = new ContentFragment();
+    	}
+    	FragmentManager fm = getFragmentManager();
+    	if (fm != null) {
+    		fm.beginTransaction().replace(R.id.content_frame, newFragment).commit();
+    	} else {
+    		Log.d("Dribl", "FragmentManager is null");
+    	}
     	
-    	// highlight selected item
+    	
+    	// Highlight selected item
     	mDrawerList.setItemChecked(position, true);
-    	
-    	// set actionbar title according to selected item
-    	setTitle(mListItems[position]);
-    	
-    	// close drawer on itemClick
+    	// Close drawer on click
     	mDrawerLayout.closeDrawer(mDrawerList);
     }
-
-	@Override
-	public void setTitle(CharSequence title) {
-		mTitle = title;
-		getActionBar().setTitle(mTitle);
-	}
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
@@ -108,5 +101,16 @@ public class MainActivity extends Activity {
 		mDrawerToggle.syncState();
 	}
 
+
+	/**
+	 * Clicked on an item
+	 *
+	 */
+    private class DrawerItemClickListener implements OnItemClickListener {
+    	@Override
+    	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    		selectItem(position);
+    	}
+    }
         
 }

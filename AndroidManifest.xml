@@ -33,7 +33,7 @@
         </activity>
         
         <activity
-            android:name="de.hsbremen.android.dribl.ApiTestActivity"
+            android:name="de.hsbremen.android.dribl.ApiTestFragment"
             android:label="@string/title_activity_api_test" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
