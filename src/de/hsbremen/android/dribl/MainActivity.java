@@ -48,8 +48,8 @@ public class MainActivity extends Activity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
         
-        mListItems = getResources().getStringArray(R.array.menu_items);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mListItems = getResources().getStringArray(R.array.menu_items);
         
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, mListItems);
         mDrawerList.setAdapter(adapter);
