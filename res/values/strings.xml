@@ -9,6 +9,9 @@
 
     <string-array name="menu_items">
         <item>Stream</item>
+        <item>Popular</item>
+        <item>Everyone</item>
+        <item>Debuts</item>
         <item>Categories</item>
         <item>Collections</item>
     </string-array>

@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -42,7 +43,8 @@ public class ApiTestFragment extends Fragment implements LoaderCallbacks<Cursor>
 		
 		mActivity = getActivity();
 		
-		ListView listview = (ListView) view.findViewById(R.id.list);
+//		ListView listview = (ListView) view.findViewById(R.id.list);
+		GridView listview = (GridView) view.findViewById(R.id.gridview);
 		listview.setEmptyView((TextView) view.findViewById(R.id.empty));
 		
 		mAdapter = new SimpleCursorAdapter(mActivity, android.R.layout.simple_list_item_1, null, new String[] { DribbbleContract.Pictures.IMAGE_URL }, new int[] { android.R.id.text1 }, 0);
