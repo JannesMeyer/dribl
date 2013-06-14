@@ -28,12 +28,12 @@
         <activity android:name="de.hsbremen.android.dribl.SideMenuList" >
         </activity>
         <activity
-            android:name="de.hsbremen.android.dribl.ContentFragment"
+            android:name="de.hsbremen.android.dribl.fragments.ContentFragment"
             android:label="@string/title_activity_content_fragment" >
         </activity>
         
         <activity
-            android:name="de.hsbremen.android.dribl.ApiTestFragment"
+            android:name="de.hsbremen.android.dribl.fragments.ApiTestFragmentstFragment"
             android:label="@string/title_activity_api_test" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,4 +1,4 @@
-package de.hsbremen.android.dribl;
+package de.hsbremen.android.dribl.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -22,6 +22,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import de.hsbremen.android.dribl.R;
 import de.hsbremen.android.dribl.provider.DribbbleContract;
 
 
@@ -41,11 +42,9 @@ public class ApiTestFragment extends Fragment implements LoaderCallbacks<Cursor>
 		
 		mActivity = getActivity();
 		
-//		getListView().set
 		ListView listview = (ListView) view.findViewById(R.id.list);
 		listview.setEmptyView((TextView) view.findViewById(R.id.empty));
 		
-//		mAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, null, new String[] { UserDictionary.Words.WORD }, new int[] { android.R.id.text1 }, 0);
 		mAdapter = new SimpleCursorAdapter(mActivity, android.R.layout.simple_list_item_1, null, new String[] { DribbbleContract.Pictures.IMAGE_URL }, new int[] { android.R.id.text1 }, 0);
 		listview.setAdapter(mAdapter);
 		listview.setOnItemClickListener(new OnItemClickListener() {
@@ -66,20 +65,20 @@ public class ApiTestFragment extends Fragment implements LoaderCallbacks<Cursor>
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		if (id == 0) {
-			String searchString = null;
-
-			String[] projection = { UserDictionary.Words._ID, UserDictionary.Words.WORD, UserDictionary.Words.LOCALE };
-			String selection;
-			String[] selectionArgs = {""};
-			if (!TextUtils.isEmpty(searchString)) {
-				selection = UserDictionary.Words.WORD + " = ?";
-				selectionArgs[0] = searchString;
-			} else {
-				selection = null;
-				selectionArgs = null;
-			}
-			
-			return new CursorLoader(mActivity, UserDictionary.Words.CONTENT_URI, projection, selection, selectionArgs, null);
+//			String searchString = null;
+//
+//			String[] projection = { UserDictionary.Words._ID, UserDictionary.Words.WORD, UserDictionary.Words.LOCALE };
+//			String selection;
+//			String[] selectionArgs = {""};
+//			if (!TextUtils.isEmpty(searchString)) {
+//				selection = UserDictionary.Words.WORD + " = ?";
+//				selectionArgs[0] = searchString;
+//			} else {
+//				selection = null;
+//				selectionArgs = null;
+//			}
+//			
+//			return new CursorLoader(mActivity, UserDictionary.Words.CONTENT_URI, projection, selection, selectionArgs, null);
 		} else if (id == 1) {
 			String[] projection = {  };
 			return new CursorLoader(mActivity, DribbbleContract.Pictures.CONTENT_URI, projection, null, null, null);

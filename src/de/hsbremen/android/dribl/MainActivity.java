@@ -1,5 +1,7 @@
 package de.hsbremen.android.dribl;
 
+import de.hsbremen.android.dribl.fragments.ApiTestFragment;
+import de.hsbremen.android.dribl.fragments.ContentFragment;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -35,10 +37,8 @@ public class MainActivity extends Activity {
         // NavigationDrawer
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.open_drawer, R.string.close_drawer) {
         	public void onDrawerOpened(View drawerView) {
-        		invalidateOptionsMenu();
         	}
         	public void onDrawerClosed(View view) {
-        		invalidateOptionsMenu();
         	}
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);

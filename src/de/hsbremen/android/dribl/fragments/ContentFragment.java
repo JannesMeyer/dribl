@@ -1,5 +1,6 @@
-package de.hsbremen.android.dribl;
+package de.hsbremen.android.dribl.fragments;
 
+import de.hsbremen.android.dribl.R;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
