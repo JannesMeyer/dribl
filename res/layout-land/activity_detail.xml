@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+	<!-- INFO -->
+	<fragment android:name="de.hsbremen.android.dribl.fragments.InfoFragment"
+	    android:id="@+id/info_fragment"
+	    android:layout_width="0dp"
+	    android:layout_height="match_parent"
+	    android:layout_weight="1"
+	     />
+
+	<!-- IMAGE -->
+	<fragment android:name="de.hsbremen.android.dribl.fragments.ImageFragment"
+	    android:id="@+id/image_fragment"
+	    android:layout_width="0dp"
+	    android:layout_height="match_parent"
+	    android:layout_weight="2"
+	     />
+	
+</LinearLayout>

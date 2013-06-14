@@ -10,7 +10,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_USER_DICTIONARY" />
-    
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -31,12 +31,12 @@
             android:name="de.hsbremen.android.dribl.fragments.ContentFragment"
             android:label="@string/title_activity_content_fragment" >
         </activity>
-        
         <activity
             android:name="de.hsbremen.android.dribl.fragments.ApiTestFragmentstFragment"
             android:label="@string/title_activity_api_test" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -46,5 +46,11 @@
             android:authorities="de.hsbremen.android.dribl.provider"
             android:exported="false" >
         </provider>
+
+        <activity
+            android:name="de.hsbremen.android.dribl.DetailActivity"
+            android:label="@string/title_activity_detail" >
+        </activity>
     </application>
+
 </manifest>

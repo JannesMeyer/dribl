@@ -8,6 +8,7 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import de.hsbremen.android.dribl.DetailActivity;
 import de.hsbremen.android.dribl.R;
 import de.hsbremen.android.dribl.provider.DribbbleContract;
 
@@ -49,13 +51,16 @@ public class ApiTestFragment extends Fragment implements LoaderCallbacks<Cursor>
 		listview.setAdapter(mAdapter);
 		listview.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            	Builder builder = new AlertDialog.Builder(mActivity, AlertDialog.THEME_HOLO_LIGHT);
-        		builder.setTitle("Hallo Titel").setItems(new String[] { "Ja", "Nein", "Vielleicht" }, new OnClickListener() {
-        			@Override
-        			public void onClick(DialogInterface dialog, int which) {
-        				Log.d(TAG, "Something clicked " + which);
-        			}
-        		}).show();
+            	Log.d(TAG, "item clicked: " + position);
+            	Intent intent = new Intent(getActivity(), DetailActivity.class);
+            	startActivity(intent);
+//            	Builder builder = new AlertDialog.Builder(mActivity, AlertDialog.THEME_HOLO_LIGHT);
+//        		builder.setTitle("Hallo Titel").setItems(new String[] { "Ja", "Nein", "Vielleicht" }, new OnClickListener() {
+//        			@Override
+//        			public void onClick(DialogInterface dialog, int which) {
+//        				Log.d(TAG, "Something clicked " + which);
+//        			}
+//        		}).show();
             }
         } );
 		getLoaderManager().initLoader(1, null, this);		
