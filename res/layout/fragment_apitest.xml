@@ -4,11 +4,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
-    <ListView
+<!--     <ListView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
-    </ListView>
+    </ListView> -->
+    
+    <GridView 
+        android:id="@+id/gridview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:numColumns="@integer/num_columns" >
+    </GridView>
 
     <TextView
         android:id="@+id/empty"
