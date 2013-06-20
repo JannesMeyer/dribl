@@ -1,11 +1,11 @@
 package de.hsbremen.android.dribl;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTabHost;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -20,6 +20,8 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import de.hsbremen.android.dribl.fragments.ApiTestFragment;
 import de.hsbremen.android.dribl.fragments.ContentFragment;
+
+
 
 public class MainActivity extends FragmentActivity {
 
@@ -83,13 +85,13 @@ public class MainActivity extends FragmentActivity {
     private void selectItem(int position) {
     	Fragment newFragment;
     	switch (position) {
-    	case 0:
-    		newFragment = new ApiTestFragment();
-    		break;
-    	default:
-    		newFragment = new ContentFragment();
+	    	case 0:
+	    		newFragment = new ApiTestFragment();
+	    		break;
+	    	default:
+	    		newFragment = new ContentFragment();
     	}
-    	FragmentManager fm = getFragmentManager();
+    	FragmentManager fm = getSupportFragmentManager();
     	if (fm != null) {
     		fm.beginTransaction().replace(R.id.content_frame, newFragment).commit();
     	} else {
