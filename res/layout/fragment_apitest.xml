@@ -4,13 +4,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
-    <ListView
-        android:id="@+id/list"
+    <GridView 
+        android:id="@+id/gridview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:dividerHeight="0dp"
-		android:divider="@null" >
-    </ListView>
+        android:numColumns="@integer/num_columns" >
+    </GridView>
 
     <TextView
         android:id="@+id/empty"

@@ -6,24 +6,27 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTabHost;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SearchView;
 import de.hsbremen.android.dribl.fragments.ApiTestFragment;
 import de.hsbremen.android.dribl.fragments.ContentFragment;
-
-
 
 public class MainActivity extends FragmentActivity {
 
 	private ListView mDrawerList;
 	private DrawerLayout mDrawerLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
+	private FragmentTabHost mTabHost;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,11 +53,28 @@ public class MainActivity extends FragmentActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, listItems);
         mDrawerList.setAdapter(adapter);
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        // create tabhost for fragments with tabs
+        mTabHost = new FragmentTabHost(this);
+        
         
         // Set inital fragment
         selectItem(0);
     }
-
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        
+        // searchview
+        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        // search dribble 
+        // ...
+        return super.onCreateOptionsMenu(menu);
+    }
+    
+    
     /**
      * Switches the contents of the FrameLayout
      * 
