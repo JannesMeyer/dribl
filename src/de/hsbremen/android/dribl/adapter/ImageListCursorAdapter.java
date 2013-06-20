@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.app.ActivityManager;
@@ -13,7 +12,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.support.v4.util.LruCache;
 import android.support.v4.widget.CursorAdapter;
@@ -34,7 +32,7 @@ public class ImageListCursorAdapter extends CursorAdapter {
 	
 	private LayoutInflater inflater;
 	LruCache<String, Bitmap> memoryCache;
-	private ConnectivityManager connMgr;
+//	private ConnectivityManager connMgr;
 	
 	ImageLoader imageLoader;
 	

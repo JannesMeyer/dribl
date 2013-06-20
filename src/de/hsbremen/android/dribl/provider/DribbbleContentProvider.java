@@ -35,6 +35,7 @@ public class DribbbleContentProvider extends ContentProvider {
 	@Override
 	public boolean onCreate() {
 //		sUriMatcher.addURI("com.example.app.provider", "table3", 1);
+		Log.d("Dribl", "New ContentProvider instance");
 		return true;
 	}
 	
