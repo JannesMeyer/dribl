@@ -5,13 +5,17 @@
     <ImageView 
         android:id="@+id/detail_icon"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon_likes" >
     </ImageView>
     
     <TextView 
         android:id="@+id/detail_label"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content" 
+        android:text="test"
+        android:textSize="@dimen/list_item_textsize"
+        android:paddingTop="4dp">
     </TextView>
     
 </LinearLayout>

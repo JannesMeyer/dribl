@@ -8,7 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +19,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 import de.hsbremen.android.dribl.DetailActivity;
 import de.hsbremen.android.dribl.R;
+import de.hsbremen.android.dribl.adapter.ImageListCursorAdapter;
 import de.hsbremen.android.dribl.provider.DribbbleContract;
 
 
@@ -31,7 +32,7 @@ public class ApiTestFragment extends Fragment implements LoaderCallbacks<Cursor>
 	public static final String TAG = ApiTestFragment.class.getSimpleName();
 	
 	Activity mActivity;
-	SimpleCursorAdapter mAdapter;
+	CursorAdapter mAdapter;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -39,13 +40,18 @@ public class ApiTestFragment extends Fragment implements LoaderCallbacks<Cursor>
 		
 		mActivity = getActivity();
 		
-//		ListView listview = (ListView) view.findViewById(R.id.list);
-		GridView listview = (GridView) view.findViewById(R.id.gridview);
-		listview.setEmptyView((TextView) view.findViewById(R.id.empty));
+		GridView gridview = (GridView) view.findViewById(R.id.gridview);
+		gridview.setEmptyView((TextView) view.findViewById(R.id.empty));
 		
-		mAdapter = new SimpleCursorAdapter(mActivity, android.R.layout.simple_list_item_1, null, new String[] { DribbbleContract.Pictures.IMAGE_URL }, new int[] { android.R.id.text1 }, 0);
-		listview.setAdapter(mAdapter);
-		listview.setOnItemClickListener(new OnItemClickListener() {
+		// Set adapter and let the cursor be changed later
+		mAdapter = new ImageListCursorAdapter(mActivity, null);
+		gridview.setAdapter(mAdapter);
+		
+		// Init loader with id 1 and set this class as callback
+		getLoaderManager().initLoader(1, null, this);
+		
+		// Click listener
+		gridview.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             	Log.d(TAG, "item clicked: " + position);
             	Intent intent = new Intent(getActivity(), DetailActivity.class);
@@ -59,7 +65,7 @@ public class ApiTestFragment extends Fragment implements LoaderCallbacks<Cursor>
 //        		}).show();
             }
         } );
-		getLoaderManager().initLoader(1, null, this);		
+				
 		return view;
 	}
 
@@ -78,13 +84,19 @@ public class ApiTestFragment extends Fragment implements LoaderCallbacks<Cursor>
 //				selection = null;
 //				selectionArgs = null;
 //			}
-//			
 //			return new CursorLoader(mActivity, UserDictionary.Words.CONTENT_URI, projection, selection, selectionArgs, null);
 		} else if (id == 1) {
 			String[] projection = {  };
-			return new CursorLoader(mActivity, DribbbleContract.Pictures.CONTENT_URI, projection, null, null, null);
+			return new CursorLoader(mActivity,
+					DribbbleContract.Image.CONTENT_URI,
+					projection,
+					null,		// No selection clause
+					null,		// No selection arguments
+					null		// No default sort order
+					);
 		}
 		
+		// Invalid ID was passed
 		return null;
 	}
 
@@ -96,7 +108,7 @@ public class ApiTestFragment extends Fragment implements LoaderCallbacks<Cursor>
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		// Invalidated data
+		// Clear out the old cursor
 		mAdapter.swapCursor(null);
 	}
 

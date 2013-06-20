@@ -1,7 +1,8 @@
 package de.hsbremen.android.dribl;
 
+import java.util.Random;
+
 import android.content.Context;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,10 +28,13 @@ public class InfoList extends ArrayAdapter<String> {
 		View rowView = inflater.inflate(R.layout.details_list_item, parent, false);
 		TextView textView = (TextView) rowView.findViewById(R.id.detail_label);
 		ImageView imageView = (ImageView) rowView.findViewById(R.id.detail_icon);
-		textView.setText(values[position]);
-		String iconString = "R.drawable.icon_" + values[position].toString();
-		Uri icon = Uri.parse(iconString);
-		imageView.setImageURI(icon);
+		textView.setText("1337" + " " + values[position]);
+		int[] icon = {
+				R.drawable.icon_likes,
+				R.drawable.icon_buckets,
+				R.drawable.icon_views
+		};
+		imageView.setImageResource(icon[position]);
 		
 		
 		return rowView;

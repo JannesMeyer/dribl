@@ -7,8 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import de.hsbremen.android.dribl.R;
 
-
-
 public class ContentFragment extends Fragment {
 
 	@Override

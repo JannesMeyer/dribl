@@ -14,11 +14,15 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawableLeft="@drawable/icon_likes"
-        android:drawablePadding="12dp"
-        android:text="TextView"
-        android:textSize="32sp" />
-    
+        android:text="Title"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="by Author" />
+
     <ListView
         android:id="@+id/detailList"
         android:layout_width="match_parent"
