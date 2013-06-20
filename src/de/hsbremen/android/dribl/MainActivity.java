@@ -21,6 +21,8 @@ import android.widget.SearchView;
 import de.hsbremen.android.dribl.fragments.ApiTestFragment;
 import de.hsbremen.android.dribl.fragments.ContentFragment;
 
+
+
 public class MainActivity extends FragmentActivity {
 
 	private ListView mDrawerList;
@@ -83,11 +85,11 @@ public class MainActivity extends FragmentActivity {
     private void selectItem(int position) {
     	Fragment newFragment;
     	switch (position) {
-    	case 0:
-    		newFragment = new ApiTestFragment();
-    		break;
-    	default:
-    		newFragment = new ContentFragment();
+	    	case 0:
+	    		newFragment = new ApiTestFragment();
+	    		break;
+	    	default:
+	    		newFragment = new ContentFragment();
     	}
     	FragmentManager fm = getSupportFragmentManager();
     	if (fm != null) {

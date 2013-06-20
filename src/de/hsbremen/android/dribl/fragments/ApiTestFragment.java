@@ -24,7 +24,6 @@ import de.hsbremen.android.dribl.provider.DribbbleContract;
 
 
 
-
 public class ApiTestFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	/**
