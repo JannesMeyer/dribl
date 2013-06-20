@@ -18,4 +18,6 @@
     
     <string name="title_activity_api_test">ApiTestActivity</string>
     <string name="loading">Loading data…</string>
+    
+    <string name="contentdescription_image">Image loaded from the web</string>
 </resources>

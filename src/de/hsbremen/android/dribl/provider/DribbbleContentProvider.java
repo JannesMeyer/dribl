@@ -20,12 +20,13 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.database.MatrixCursor.RowBuilder;
 import android.net.Uri;
 import android.util.Log;
 
-public class PicturesContentProvider extends ContentProvider {
+public class DribbbleContentProvider extends ContentProvider {
 
-	private static final String TAG = PicturesContentProvider.class.getSimpleName();
+	private static final String TAG = DribbbleContentProvider.class.getSimpleName();
 	
 //	private static final UriMatcher sUriMatcher;
 	
@@ -46,11 +47,42 @@ public class PicturesContentProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		
-		MatrixCursor c = new MatrixCursor(new String[] { DribbbleContract.Pictures._ID, DribbbleContract.Pictures.IMAGE_URL });
+		MatrixCursor c = new MatrixCursor(new String[] {
+			DribbbleContract.Image._ID,
+			DribbbleContract.Image.IMAGE_URL
+		});
 		
 		String url = "http://api.dribbble.com/shots/popular";
 
-		// Load JSON data
+		// Parse JSON
+		try {
+			JSONObject object = new JSONObject(loadStringFromUrl(url));
+			JSONArray shots = object.getJSONArray("shots");
+			for (int i = 0; i < shots.length(); ++i) {
+				JSONObject shot = shots.getJSONObject(i);
+				// Add row to the matrix cursor
+				RowBuilder row = c.newRow();
+
+				// Add the id
+				row.add(shot.getLong("id"));
+
+				// Always load the non-retina version (400x300)
+				if (shot.has("image_400_url")) {
+					row.add(shot.getString("image_400_url"));
+				} else {
+					row.add(shot.getString("image_url"));
+				}
+			}
+		} catch (JSONException e) {
+			Log.e(TAG, e.getMessage());
+		}
+		
+		// Return the MatrixCursor
+		return c;
+	}
+
+	private static String loadStringFromUrl(String url) {
+		// Load JSON data (using Apache's http client library)
 		StringBuilder builder = new StringBuilder();
 		HttpClient client = new DefaultHttpClient();
 		HttpGet httpGet = new HttpGet(url);
@@ -61,8 +93,7 @@ public class PicturesContentProvider extends ContentProvider {
 			if (statusCode == 200) {
 				HttpEntity entity = response.getEntity();
 				InputStream content = entity.getContent();
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(content));
+				BufferedReader reader = new BufferedReader(new InputStreamReader(content));
 				String line;
 				while ((line = reader.readLine()) != null) {
 					builder.append(line);
@@ -75,28 +106,9 @@ public class PicturesContentProvider extends ContentProvider {
 		} catch (IOException e) {
 			Log.e(TAG, e.getMessage());
 		}
-		String result = builder.toString();
-
-		// Parse JSON
-		try {
-			JSONObject object = new JSONObject(result);
-			JSONArray shots = object.getJSONArray("shots");
-			for (int i = 0; i < shots.length(); ++i) {
-				JSONObject shot = shots.getJSONObject(i);
-				// Add row to the matrix cursor
-				c.newRow()
-					.add(shot.getLong("id"))
-					.add(shot.getString("image_url"));
-//				c.addRow(new Object[] { shot.getLong("id"), shot.getString("image_url") });
-			}
-		} catch (JSONException e) {
-			Log.e(TAG, e.getMessage());
-		}
-		
-		// Return the MatrixCursor
-		return c;
+		return builder.toString();
 	}
-
+	
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		throw new UnsupportedOperationException();
