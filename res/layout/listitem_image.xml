@@ -8,8 +8,10 @@
         android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:contentDescription="@string/contentdescription_image" >
+        android:layout_margin="8dp"
+        android:contentDescription="@string/contentdescription_image"
+        android:background="@drawable/background_card"
+        android:padding="@dimen/frame_spacing" >
     </de.hsbremen.android.dribl.views.StretchableImageView>
 
     <TextView

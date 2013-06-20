@@ -7,6 +7,7 @@
     <dimen name="drawer_list_padding">16dp</dimen>
     <dimen name="drawer_width">240dp</dimen>
     
+	<dimen name="frame_spacing">12dp</dimen>    
     <dimen name="list_item_textsize">24sp</dimen>
     
 </resources>
