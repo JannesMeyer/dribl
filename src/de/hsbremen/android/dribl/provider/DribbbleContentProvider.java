@@ -22,21 +22,39 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MatrixCursor.RowBuilder;
 import android.net.Uri;
+import android.support.v4.util.LruCache;
 import android.util.Log;
 
 public class DribbbleContentProvider extends ContentProvider {
 
 	private static final String TAG = DribbbleContentProvider.class.getSimpleName();
 	
+	private LruCache<String, String> responseCache;
 //	private static final UriMatcher sUriMatcher;
-	
 	
 	
 	@Override
 	public boolean onCreate() {
 //		sUriMatcher.addURI("com.example.app.provider", "table3", 1);
 		Log.d("Dribl", "New ContentProvider instance");
+
+	    // Store a maximum of 10 responses in the cache. A typical response is about 20KB in size.
+	    final int cacheSize = 10;
+	    responseCache = new LruCache<String, String>(cacheSize);
+	    
 		return true;
+	}
+	
+	/**
+	 * This method accesses the response cache in a thread-safe way
+	 *  
+	 * @param key
+	 * @param response
+	 */
+	public synchronized void addResponseToMemoryCache(String key, String response) {
+		if (responseCache.get(key) == null) {
+            responseCache.put(key, response);
+        }
 	}
 	
 	@Override
@@ -55,9 +73,20 @@ public class DribbbleContentProvider extends ContentProvider {
 		
 		String url = "http://api.dribbble.com/shots/popular";
 
+		String response = responseCache.get(url);
+		// If the cache failed we need to actually download it from the network
+		if (response == null) {
+			Log.d("Dribl", "Cache miss");
+			response = loadStringFromUrl(url);
+			addResponseToMemoryCache(url, response);
+		} else {
+			Log.d("Dribl", "Cache hit");
+		}
+		
+		
 		// Parse JSON
 		try {
-			JSONObject object = new JSONObject(loadStringFromUrl(url));
+			JSONObject object = new JSONObject(response);
 			JSONArray shots = object.getJSONArray("shots");
 			for (int i = 0; i < shots.length(); ++i) {
 				JSONObject shot = shots.getJSONObject(i);

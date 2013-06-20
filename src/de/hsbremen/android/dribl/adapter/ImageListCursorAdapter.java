@@ -1,21 +1,11 @@
 package de.hsbremen.android.dribl.adapter;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 import android.app.ActivityManager;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.support.v4.util.LruCache;
 import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +21,7 @@ import de.hsbremen.android.dribl.provider.DribbbleContract;
 public class ImageListCursorAdapter extends CursorAdapter {
 	
 	private LayoutInflater inflater;
-	LruCache<String, Bitmap> memoryCache;
+//	LruCache<String, Bitmap> memoryCache;
 //	private ConnectivityManager connMgr;
 	
 	ImageLoader imageLoader;
@@ -58,7 +48,6 @@ public class ImageListCursorAdapter extends CursorAdapter {
 		imageLoader = new ImageLoader.Builder(context)
 		        .enableDiskCache(cacheDir, 10 * 1024 * 1024)
 		        .enableMemoryCache(memoryCacheSize).build();
-		
 		
 //		connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		
@@ -152,106 +141,106 @@ public class ImageListCursorAdapter extends CursorAdapter {
 		return view;
 	}
 	
-    public Bitmap getBitmapFromMemCache(String key) {
-        return memoryCache.get(key);
-    }
+//    public Bitmap getBitmapFromMemCache(String key) {
+//        return memoryCache.get(key);
+//    }
 	
-	 /**
-	  * Given a URL, establishes an HttpUrlConnection and retrieves
-	  * the web page content as a InputStream, which it returns as
-	  * a string.
-	  * @param imageURL
-	  * @return Bitmap on success, null on failure
-	  * @throws IOException
-	  */
-	 static private Bitmap downloadImage(URL imageUrl) {
-		// Open a connection to the URL
-		HttpURLConnection urlConnection;
-		try {
-			urlConnection = (HttpURLConnection) imageUrl.openConnection();
-		} catch (IOException e) {
-			return null;
-		}
-		
-		// Perform the request
-		try {
-			urlConnection.setReadTimeout(10000); // 10 seconds
-			urlConnection.setConnectTimeout(15000); // 15 seconds
-			urlConnection.setRequestMethod("GET");
-			urlConnection.setDoInput(true);
-			// Execute the request
-			urlConnection.connect();
-			 
-			// Read the response code
-			if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-				// Convert to bitmap and return it
-				return BitmapFactory.decodeStream(in);
-			} else {
-				return null;
-			}
-		} catch (IOException e) {
-			return null;
-		} finally {
-			// Make sure that the Connection is closed after we finish using it.
-			// It may be held open longer due to connection pooling by the underlying system, though.
-			urlConnection.disconnect();
-		}
-	 }
+//	 /**
+//	  * Given a URL, establishes an HttpUrlConnection and retrieves
+//	  * the web page content as a InputStream, which it returns as
+//	  * a string.
+//	  * @param imageURL
+//	  * @return Bitmap on success, null on failure
+//	  * @throws IOException
+//	  */
+//	 static private Bitmap downloadImage(URL imageUrl) {
+//		// Open a connection to the URL
+//		HttpURLConnection urlConnection;
+//		try {
+//			urlConnection = (HttpURLConnection) imageUrl.openConnection();
+//		} catch (IOException e) {
+//			return null;
+//		}
+//		
+//		// Perform the request
+//		try {
+//			urlConnection.setReadTimeout(10000); // 10 seconds
+//			urlConnection.setConnectTimeout(15000); // 15 seconds
+//			urlConnection.setRequestMethod("GET");
+//			urlConnection.setDoInput(true);
+//			// Execute the request
+//			urlConnection.connect();
+//			 
+//			// Read the response code
+//			if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+//				InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+//				// Convert to bitmap and return it
+//				return BitmapFactory.decodeStream(in);
+//			} else {
+//				return null;
+//			}
+//		} catch (IOException e) {
+//			return null;
+//		} finally {
+//			// Make sure that the Connection is closed after we finish using it.
+//			// It may be held open longer due to connection pooling by the underlying system, though.
+//			urlConnection.disconnect();
+//		}
+//	 }
 	
-	/**
-	 * A Task that downloads and caches images from the web asynchronously
-	 * @author jannes
-	 */
-	class LoadImageTask extends AsyncTask<Object, Void, Bitmap> {
-
-        private ViewHolder listItem;
-        private URL imageUrl;
-        
-        @Override
-        protected Bitmap doInBackground(Object... params) {
-            listItem = (ViewHolder) params[0];
-            // Save the image url for later
-			imageUrl = (URL) listItem.image.getTag();
-			
-			// Download the image
-			Log.d("Dribl", "Downloading an image");
-			return downloadImage(imageUrl);
-        }
-        
-        public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
-        	// We are working with multiple threads here, so we need to synchronize
-        	// when using multiple operations in a row 
-        	synchronized (memoryCache) {
-	            if (getBitmapFromMemCache(key) == null) {
-	            	Log.d("Dribl", "Adding an image to the memory cache");
-	                memoryCache.put(key, bitmap);
-	            }
-        	}
-        }
-        
-        @Override
-        protected void onPostExecute(Bitmap result) {
-        	if (result != null) {
-            	// Submit the bitmap to the memory cache
-            	addBitmapToMemoryCache(imageUrl.toString(),	result);
-            	
-            	// Only update the view if it didn't get recycled in the meantime
-            	if (imageUrl.equals((URL) listItem.image.getTag())) {
-//            		listItem.progressIndicator.setVisibility(View.GONE);
-//            		listItem.image.setVisibility(View.VISIBLE);
-            		listItem.image.setImageBitmap(result);
-            	}
-        	}
-        	
-//        	targetImageView.setImageAlpha(alpha)
-//            if(result != null && imv != null){
-//                imv.setVisibility(View.VISIBLE);
-//                imv.setImageBitmap(result);
-//            }else{
-//                imv.setVisibility(View.GONE);
-//            }
-        }
-    }
+//	/**
+//	 * A Task that downloads and caches images from the web asynchronously
+//	 * @author jannes
+//	 */
+//	class LoadImageTask extends AsyncTask<Object, Void, Bitmap> {
+//
+//        private ViewHolder listItem;
+//        private URL imageUrl;
+//        
+//        @Override
+//        protected Bitmap doInBackground(Object... params) {
+//            listItem = (ViewHolder) params[0];
+//            // Save the image url for later
+//			imageUrl = (URL) listItem.image.getTag();
+//			
+//			// Download the image
+//			Log.d("Dribl", "Downloading an image");
+//			return downloadImage(imageUrl);
+//        }
+//        
+//        public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+//        	// We are working with multiple threads here, so we need to synchronize
+//        	// when using multiple operations in a row 
+//        	synchronized (memoryCache) {
+//	            if (getBitmapFromMemCache(key) == null) {
+//	            	Log.d("Dribl", "Adding an image to the memory cache");
+//	                memoryCache.put(key, bitmap);
+//	            }
+//        	}
+//        }
+//        
+//        @Override
+//        protected void onPostExecute(Bitmap result) {
+//        	if (result != null) {
+//            	// Submit the bitmap to the memory cache
+//            	addBitmapToMemoryCache(imageUrl.toString(),	result);
+//            	
+//            	// Only update the view if it didn't get recycled in the meantime
+//            	if (imageUrl.equals((URL) listItem.image.getTag())) {
+////            		listItem.progressIndicator.setVisibility(View.GONE);
+////            		listItem.image.setVisibility(View.VISIBLE);
+//            		listItem.image.setImageBitmap(result);
+//            	}
+//        	}
+//        	
+////        	targetImageView.setImageAlpha(alpha)
+////            if(result != null && imv != null){
+////                imv.setVisibility(View.VISIBLE);
+////                imv.setImageBitmap(result);
+////            }else{
+////                imv.setVisibility(View.GONE);
+////            }
+//        }
+//    }
 
 }

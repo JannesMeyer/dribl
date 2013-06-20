@@ -27,7 +27,7 @@
     <string name="title_activity_side_menu">SideMenu</string>
     <string name="title_activity_content_fragment">ContentFragment</string>
     <string name="title_activity_api_test">ApiTestActivity</string>
-    <string name="loading">Loading data…</string>
+    <string name="loading">Loading images…</string>
     
     <string name="contentdescription_image">Image loaded from the web</string>
     <string name="title_activity_detail">DetailActivity</string>
