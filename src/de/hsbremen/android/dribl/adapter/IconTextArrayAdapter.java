@@ -10,14 +10,15 @@ import android.widget.TextView;
 import de.hsbremen.android.dribl.R;
 
 /**
- * This is a ListAdapter that displays icons alongside with strings
+ * This is a generic ListAdapter that displays icons alongside with text labels
  * 
  * @author jannes
  */
 public class IconTextArrayAdapter extends BaseAdapter {
 
 	private final LayoutInflater mInflater;
-	private final String[] mTexts;
+	private final int mRowResourceId;
+	private final String[] mLabels;
 	private final int[] mImages;
 
 	private class ViewHolder {
@@ -25,13 +26,14 @@ public class IconTextArrayAdapter extends BaseAdapter {
 		TextView textView;
 	}
 
-	public IconTextArrayAdapter(Context context, int[] images, String[] texts) {
+	public IconTextArrayAdapter(Context context, int[] images, String[] labels, int rowResourceId) {
 		mInflater = LayoutInflater.from(context);
-		if (images.length != texts.length) {
-			throw new IllegalArgumentException("The images and the texts have to be of the same length");
+		if (images.length != labels.length) {
+			throw new IllegalArgumentException("The images and the labels have to be of the same length");
 		}
+		mRowResourceId = rowResourceId;
 		mImages = images;
-		mTexts = texts;
+		mLabels = labels;
 	}
 
 	@Override
@@ -39,7 +41,7 @@ public class IconTextArrayAdapter extends BaseAdapter {
 		ViewHolder holder;
 		if (convertView == null) {
 			// Inflate a row, but don't attach it to the parent
-			convertView = mInflater.inflate(R.layout.row_icontext, parent, false);
+			convertView = mInflater.inflate(mRowResourceId, parent, false);
 			// Store its childview references in a ViewHolder
 			holder = new ViewHolder();
 			holder.textView = (TextView) convertView.findViewById(R.id.label);
@@ -52,14 +54,14 @@ public class IconTextArrayAdapter extends BaseAdapter {
 
 		// Update the contents
 		holder.imageView.setImageResource(mImages[position]);
-		holder.textView.setText(mTexts[position]);
+		holder.textView.setText(mLabels[position]);
 
 		return convertView;
 	}
 
 	@Override
 	public int getCount() {
-		return mTexts.length;
+		return mLabels.length;
 	}
 
 	@Override

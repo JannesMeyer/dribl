@@ -33,12 +33,10 @@ public class InfoFragment extends Fragment {
 		};
 		
 		// Create the listadapter
-		mListAdapter = new IconTextArrayAdapter(getActivity(), icons, texts) {
-			/**
-			 * Makes all items in this list non-clickable
-			 */
+		mListAdapter = new IconTextArrayAdapter(getActivity(), icons, texts, R.layout.row_icontext) {
 			@Override
 			public boolean isEnabled(int position) {
+				// Make all items in this list non-clickable
 				return false;
 			}
 		};
