@@ -129,7 +129,7 @@ public class ImageListCursorAdapter extends CursorAdapter {
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
 		// Inflate the view, but don't attach it to the parent yet
-		View view = mInflater.inflate(R.layout.row_dribl_image, parent, false);
+		View view = mInflater.inflate(R.layout.row_driblimage, parent, false);
 		
 		// Make a ViewHolder
 		ViewHolder holder = new ViewHolder();

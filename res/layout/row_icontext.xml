@@ -1,19 +1,9 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/label"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content" >
-    
-    <ImageView 
-        android:id="@+id/icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
-    </ImageView>
-    
-    <TextView 
-        android:id="@+id/label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" 
-        android:textSize="@dimen/row_icontext_textsize"
-        android:paddingTop="4dp">
-    </TextView>
-    
-</LinearLayout>
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:drawableStart="@null"
+    android:textSize="@dimen/row_icontext_textsize" >
+
+</TextView>

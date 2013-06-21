@@ -50,7 +50,7 @@ public class MainActivity extends FragmentActivity {
         
         // Set list contents
         String[] listItems = getResources().getStringArray(R.array.menu_items);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, listItems);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.row_navigationdrawer, listItems);
         mDrawerList.setAdapter(adapter);
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         

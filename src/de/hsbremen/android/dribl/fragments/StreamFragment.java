@@ -53,7 +53,6 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor> 
 		// Retain this fragment between orientation changes
 		setRetainInstance(true);
 		
-		
 		// Create cursor adapter (without a cursor yet)
 		// Attention! This activity might not exist for the whole lifetime of the adapter,
 		// so you better don't save a reference to it in the adapter

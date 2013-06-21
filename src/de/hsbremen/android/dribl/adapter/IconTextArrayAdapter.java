@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 import de.hsbremen.android.dribl.R;
 
@@ -22,7 +21,6 @@ public class IconTextArrayAdapter extends BaseAdapter {
 	private final int[] mImages;
 
 	private class ViewHolder {
-		ImageView imageView;
 		TextView textView;
 	}
 
@@ -45,7 +43,6 @@ public class IconTextArrayAdapter extends BaseAdapter {
 			// Store its childview references in a ViewHolder
 			holder = new ViewHolder();
 			holder.textView = (TextView) convertView.findViewById(R.id.label);
-			holder.imageView = (ImageView) convertView.findViewById(R.id.icon);
 			convertView.setTag(holder);
 		} else {
 			// Retrieve a stored ViewHolder because this thing got recycled
@@ -53,7 +50,7 @@ public class IconTextArrayAdapter extends BaseAdapter {
 		}
 
 		// Update the contents
-		holder.imageView.setImageResource(mImages[position]);
+		holder.textView.setCompoundDrawablesWithIntrinsicBounds(mImages[position], 0, 0, 0);
 		holder.textView.setText(mLabels[position]);
 
 		return convertView;
