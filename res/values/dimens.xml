@@ -15,6 +15,6 @@
     <dimen name="gridview_verticalspacing">14dp</dimen>
     
 	<dimen name="frame_spacing">12dp</dimen>    
-    <dimen name="details_textsize">24sp</dimen>
+    <dimen name="row_icontext_textsize">24sp</dimen>
     
 </resources>

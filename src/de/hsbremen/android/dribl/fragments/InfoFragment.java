@@ -5,40 +5,53 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import de.hsbremen.android.dribl.R;
-import de.hsbremen.android.dribl.adapter.InfoListAdapter;
+import de.hsbremen.android.dribl.adapter.IconTextArrayAdapter;
 
 public class InfoFragment extends Fragment {
 	
+	private ListAdapter mListAdapter;
+	
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_info, container, false);
-
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		
-		ListView detailList = (ListView) view.findViewById(R.id.detailList);
-		String [] detail_items = getResources().getStringArray(R.array.detail_list);
-//		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.details_list_item, detail_items);
-
-//		ListView detailList = (ListView) view.findViewById(R.id.detailList);
-//		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.details_list_item, detail_items) {
-//			// disable user-actions on list
-//			@Override
-//			public boolean isEnabled(int position) {
-//				return false;
-//			}
-//		};
-//		detailList.setAdapter(adapter);
+		// Retain this fragment between orientation changes
+		setRetainInstance(true);
 		
-		InfoListAdapter infoList = new InfoListAdapter(getActivity(), detail_items) {
+		// Preprare info content
+		String[] texts = getResources().getStringArray(R.array.detail_list);
+		for (int i = 0; i < texts.length; ++i) {
+			texts[i] = "1337 " + texts[i]; 
+		}
+		int[] icons = {
+				R.drawable.icon_likes,
+				R.drawable.icon_buckets,
+				R.drawable.icon_views
+		};
+		
+		// Create the listadapter
+		mListAdapter = new IconTextArrayAdapter(getActivity(), icons, texts) {
+			/**
+			 * Makes all items in this list non-clickable
+			 */
+			@Override
 			public boolean isEnabled(int position) {
 				return false;
-			};
+			}
 		};
-		detailList.setAdapter(infoList);
+	}
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.fragment_info, container, false);
+
+		ListView detailList = (ListView) view.findViewById(R.id.detailList);
+		detailList.setAdapter(mListAdapter);
 		
 		return view;
 	}		
-	
+
 }

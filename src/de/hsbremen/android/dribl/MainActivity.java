@@ -16,8 +16,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import de.hsbremen.android.dribl.fragments.ApiTestFragment;
-import de.hsbremen.android.dribl.fragments.ContentFragment;
+import de.hsbremen.android.dribl.fragments.StreamFragment;
+import de.hsbremen.android.dribl.fragments.HelloWorldFragment;
 
 
 
@@ -30,6 +30,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
         setContentView(R.layout.activity_main);
         // Enable home button
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -83,10 +84,10 @@ public class MainActivity extends FragmentActivity {
     	Fragment newFragment;
     	switch (position) {
 	    	case 0:
-	    		newFragment = new ApiTestFragment();
+	    		newFragment = new StreamFragment();
 	    		break;
 	    	default:
-	    		newFragment = new ContentFragment();
+	    		newFragment = new HelloWorldFragment();
     	}
     	FragmentManager fm = getSupportFragmentManager();
     	if (fm != null) {

@@ -76,11 +76,8 @@ public class DribbbleContentProvider extends ContentProvider {
 		String response = responseCache.get(url);
 		// If the cache failed we need to actually download it from the network
 		if (response == null) {
-			Log.d("Dribl", "Cache miss");
 			response = loadStringFromUrl(url);
 			addResponseToMemoryCache(url, response);
-		} else {
-			Log.d("Dribl", "Cache hit");
 		}
 		
 		

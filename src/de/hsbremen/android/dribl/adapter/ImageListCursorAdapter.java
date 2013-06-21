@@ -6,6 +6,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,21 +21,21 @@ import de.hsbremen.android.dribl.provider.DribbbleContract;
 
 public class ImageListCursorAdapter extends CursorAdapter {
 	
-	private LayoutInflater inflater;
+	private LayoutInflater mInflater;
+	private ImageLoader mImageLoader;
 //	LruCache<String, Bitmap> memoryCache;
 //	private ConnectivityManager connMgr;
-	
-	ImageLoader imageLoader;
 	
 	class ViewHolder {
 	    ImageView image;
 	    TextView title;
-//	    ProgressBar progressIndicator;
 	}
 	
 	public ImageListCursorAdapter(Context context, Cursor cursor) {
 		super(context, cursor, 0);
-		inflater = LayoutInflater.from(context);
+		mInflater = LayoutInflater.from(context);
+		
+		Log.d("Dribl", "New ImageListCursorAdapter instance");
 		
 		// Get memory class of this device, exceeding this amount will throw an
 		// OutOfMemory exception.
@@ -45,7 +46,7 @@ public class ImageListCursorAdapter extends CursorAdapter {
 		final int memoryCacheSize = 1024 * 1024 * memClass / 8;
 
 		File cacheDir = new File(context.getExternalCacheDir(), "images");
-		imageLoader = new ImageLoader.Builder(context)
+		mImageLoader = new ImageLoader.Builder(context)
 		        .enableDiskCache(cacheDir, 10 * 1024 * 1024)
 		        .enableMemoryCache(memoryCacheSize).build();
 		
@@ -90,7 +91,7 @@ public class ImageListCursorAdapter extends CursorAdapter {
 //		listItem.image.setImageBitmap(null);
 		
 		// This will show a nice fade in when the image has loaded
-		new ImageHelper(context, imageLoader)
+		new ImageHelper(context, mImageLoader)
 			.setLoadingResource(R.drawable.placeholder)
 			.setFadeIn(true)
 			.load(listItem.image, imageUrlString);
@@ -128,13 +129,12 @@ public class ImageListCursorAdapter extends CursorAdapter {
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
 		// Inflate the view, but don't attach it to the parent yet
-		View view = inflater.inflate(R.layout.listitem_image, parent, false);
+		View view = mInflater.inflate(R.layout.row_dribl_image, parent, false);
 		
 		// Make a ViewHolder
 		ViewHolder holder = new ViewHolder();
 		holder.image = (ImageView) view.findViewById(R.id.image);
         holder.title = (TextView) view.findViewById(R.id.title);
-//        holder.progressIndicator = (ProgressBar) view.findViewById(R.id.progressBar);
         // Store the ViewHolder as a tag
         view.setTag(holder);
 		
