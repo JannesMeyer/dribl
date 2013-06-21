@@ -8,8 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import de.hsbremen.android.dribl.InfoList;
 import de.hsbremen.android.dribl.R;
+import de.hsbremen.android.dribl.adapter.InfoListAdapter;
 
 public class InfoFragment extends Fragment {
 	
@@ -33,7 +33,7 @@ public class InfoFragment extends Fragment {
 //		};
 //		detailList.setAdapter(adapter);
 		
-		InfoList infoList = new InfoList(getActivity(), detail_items) {
+		InfoListAdapter infoList = new InfoListAdapter(getActivity(), detail_items) {
 			public boolean isEnabled(int position) {
 				return false;
 			};
