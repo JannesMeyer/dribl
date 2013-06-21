@@ -17,15 +17,27 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
+        <!-- MainActivity -->
         <activity
-            android:name="de.hsbremen.android.dribl.MainActivity"
-            android:label="@string/app_name" >
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop" >
             <!-- android:configChanges="orientation|screenSize|keyboardHidden" -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <!-- DetailActivity -->
+        <activity
+            android:name=".DetailActivity"
+            android:label="@string/title_activity_detail"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
         </activity>
 
         <provider
@@ -33,11 +45,6 @@
             android:authorities="de.hsbremen.android.dribl.provider"
             android:exported="false" >
         </provider>
-
-        <activity
-            android:name="de.hsbremen.android.dribl.DetailActivity"
-            android:label="@string/title_activity_detail" >
-        </activity>
     </application>
 
 </manifest>
