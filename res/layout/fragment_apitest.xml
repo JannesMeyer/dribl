@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:numColumns="@integer/num_columns"
         android:horizontalSpacing="@dimen/gridview_spacing"
-        android:verticalSpacing="@dimen/gridview_spacing"
+        android:verticalSpacing="@dimen/gridview_verticalspacing"
         android:padding="@dimen/gridview_spacing"
         android:clipToPadding="false"
         android:scrollbarStyle="outsideOverlay"     

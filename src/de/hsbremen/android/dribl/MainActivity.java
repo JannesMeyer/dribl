@@ -54,9 +54,11 @@ public class MainActivity extends FragmentActivity {
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         
         
-        // Set inital fragment
-        selectItem(0);
-        mDrawerList.setItemChecked(0, true);
+        if (savedInstanceState == null) {
+            // Set inital fragment
+            selectItem(0);
+            mDrawerList.setItemChecked(0, true);
+        }
     }
     
     @Override
