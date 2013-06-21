@@ -62,6 +62,7 @@ public class MainActivity extends FragmentActivity {
         
         // Set inital fragment
         selectItem(0);
+        mDrawerList.setItemChecked(0, true);
     }
     
     @Override
@@ -100,7 +101,7 @@ public class MainActivity extends FragmentActivity {
     	
     	
     	// Highlight selected item
-    	mDrawerList.setItemChecked(position, true);
+//    	mDrawerList.setItemChecked(position, true);
     	// Close drawer on click
     	mDrawerLayout.closeDrawer(mDrawerList);
     }
@@ -133,6 +134,12 @@ public class MainActivity extends FragmentActivity {
     private class DrawerItemClickListener implements OnItemClickListener {
     	@Override
     	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    		// Ignore this event if the same element is already selected
+//    		Log.d("Dribl", "" + mDrawerList.getCheckedItemPosition() + " " + position);
+//    		if (mDrawerList.getCheckedItemPosition() == position) {
+//    			return;
+//    		}
+    		// Swap fragment
     		selectItem(position);
     	}
     }

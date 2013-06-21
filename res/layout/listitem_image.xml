@@ -9,9 +9,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:contentDescription="@string/contentdescription_image"
+        android:padding="10dp"
         android:background="@drawable/background_card"
-        android:padding="@dimen/frame_spacing" >
+        android:contentDescription="@string/contentdescription_image" >
     </de.hsbremen.android.dribl.views.StretchableImageView>
 
     <TextView
