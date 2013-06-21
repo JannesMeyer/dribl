@@ -8,6 +8,7 @@
     <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
         <!-- API 14 theme customizations can go here. -->
         <item name="android:actionBarStyle">@style/AppBaseTheme.ActionBar</item>
+        <item name="android:icon">@drawable/ic_action_drible_dark</item>
     </style>
 
     <style name="AppBaseTheme.ActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
