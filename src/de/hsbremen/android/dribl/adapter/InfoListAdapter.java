@@ -1,12 +1,5 @@
 package de.hsbremen.android.dribl.adapter;
 
-import java.util.Random;
-
-import de.hsbremen.android.dribl.R;
-import de.hsbremen.android.dribl.R.drawable;
-import de.hsbremen.android.dribl.R.id;
-import de.hsbremen.android.dribl.R.layout;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import de.hsbremen.android.dribl.R;
 
 public class InfoListAdapter extends ArrayAdapter<String> {
 	

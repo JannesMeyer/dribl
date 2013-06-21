@@ -8,9 +8,18 @@
         android:id="@+id/gridview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:numColumns="@integer/num_columns" >
+        android:numColumns="@integer/num_columns"
+        android:horizontalSpacing="@dimen/gridview_spacing"
+        android:verticalSpacing="@dimen/gridview_spacing"
+        android:padding="@dimen/gridview_spacing"
+        android:clipToPadding="false"
+        android:scrollbarStyle="outsideOverlay"     
+        android:stretchMode="columnWidth"
+        android:smoothScrollbar="false"
+        android:drawSelectorOnTop="true">
     </GridView>
 
+    
     <TextView
         android:id="@+id/empty"
         android:layout_width="match_parent"
