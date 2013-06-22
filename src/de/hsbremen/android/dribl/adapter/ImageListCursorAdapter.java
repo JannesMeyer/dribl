@@ -92,7 +92,7 @@ public class ImageListCursorAdapter extends CursorAdapter {
 		
 		// This will show a nice fade in when the image has loaded
 		new ImageHelper(context, mImageLoader)
-//			.setLoadingResource(R.drawable.placeholder)
+			.setLoadingResource(R.drawable.placeholder)
 			.setFadeIn(true)
 			.load(listItem.image, imageUrlString);
 		
