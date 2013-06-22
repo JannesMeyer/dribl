@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <color name="imagelist_background">#eee</color>
     <color name="action_bar_title_text_color">#006fce</color>
-    
+
 </resources>

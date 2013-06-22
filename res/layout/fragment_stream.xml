@@ -3,30 +3,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
-    <GridView 
-        android:id="@+id/gridview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:numColumns="@integer/num_columns"
-        android:horizontalSpacing="@dimen/gridview_spacing"
-        android:verticalSpacing="@dimen/gridview_verticalspacing"
-        android:padding="@dimen/gridview_spacing"
-        android:clipToPadding="false"
-        android:scrollbarStyle="outsideOverlay"     
-        android:stretchMode="columnWidth"
-        android:smoothScrollbar="false"
-        android:drawSelectorOnTop="true">
-    </GridView>
 
-    
     <TextView
         android:id="@+id/empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
         android:gravity="center"
         android:text="@string/loading"
         android:textIsSelectable="false" />
+
+    <GridView
+        android:id="@+id/gridview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:drawSelectorOnTop="true"
+        android:horizontalSpacing="@dimen/gridview_spacing"
+        android:numColumns="@integer/num_columns"
+        android:padding="@dimen/gridview_spacing"
+        android:scrollbarStyle="outsideOverlay"
+        android:smoothScrollbar="false"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="@dimen/gridview_verticalspacing"
+        android:listSelector="@drawable/background_driblimage" >
+    </GridView>
 
 </LinearLayout>
