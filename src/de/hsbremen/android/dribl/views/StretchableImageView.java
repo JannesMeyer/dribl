@@ -12,20 +12,24 @@ public class StretchableImageView extends ImageView {
     }
 
     @Override 
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
-    	Drawable drawable = getDrawable(); 
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    	// Default aspect ratio
+    	float aspectRatio = 4.0f / 3.0f;
+
+    	Drawable drawable = getDrawable();
 		if (drawable != null) {
-			int width = MeasureSpec.getSize(widthMeasureSpec);
-			
-			// Ceil not round (to avoid thin borders along the edges)
-			float aspectRatio = (float) drawable.getIntrinsicWidth() / (float) drawable.getIntrinsicHeight();
-	        // This code only works for an aspect ratio greater than 1 (i.e. height < width)
-	        int height = (int) Math.ceil(width / aspectRatio);
-	        setMeasuredDimension(width, height);
-		} else {
-			// If there's no drawable we don't know what the aspect ratio will be
-			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			// Calculate the aspect ratio if the drawable has an intrinsic size
+			int intrinsicWidth = drawable.getIntrinsicWidth();
+			int intrinsicHeight = drawable.getIntrinsicHeight();
+			if (intrinsicWidth != -1 && intrinsicHeight != -1) {
+				// Ceil not round (to avoid thin borders along the edges)
+				aspectRatio = (float)intrinsicWidth / (float)intrinsicHeight;
+			}
 		}
+		
+		int width = MeasureSpec.getSize(widthMeasureSpec);
+        int height = (int) Math.ceil(width / aspectRatio);
+        setMeasuredDimension(width, height);
     }
 
 }
