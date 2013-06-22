@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
-import android.widget.TextView;
 
 import com.webimageloader.ImageLoader;
 
@@ -68,7 +67,7 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor> 
 		
 		// Get views
 		GridView gridview = (GridView) view.findViewById(R.id.gridview);
-		gridview.setEmptyView((TextView) view.findViewById(R.id.empty));
+		gridview.setEmptyView(view.findViewById(R.id.empty));
 		
 		// Set adapter and let the cursor be changed later
 		gridview.setAdapter(mAdapter);

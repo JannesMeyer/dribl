@@ -68,7 +68,8 @@ public class DribbbleContentProvider extends ContentProvider {
 		
 		MatrixCursor c = new MatrixCursor(new String[] {
 			DribbbleContract.Image._ID,
-			DribbbleContract.Image.IMAGE_URL
+			DribbbleContract.Image.IMAGE_URL,
+			DribbbleContract.Image.TITLE
 		});
 		
 		String url = "http://api.dribbble.com/shots/popular";
@@ -99,6 +100,9 @@ public class DribbbleContentProvider extends ContentProvider {
 				} else {
 					row.add(shot.getString("image_url"));
 				}
+				
+				// Add the title
+				row.add(shot.getString("title"));
 			}
 		} catch (JSONException e) {
 			Log.e(TAG, e.getMessage());

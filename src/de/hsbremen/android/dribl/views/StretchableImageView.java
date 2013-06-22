@@ -17,12 +17,14 @@ public class StretchableImageView extends ImageView {
 
          if (drawable != null) {
 	         int width = MeasureSpec.getSize(widthMeasureSpec);
+
 	         // Ceil not round (to avoid thin borders along the edges)
 	         float imageAspectRatio = (float) drawable.getIntrinsicWidth() / (float) drawable.getIntrinsicHeight();
 	         // This code only works for an aspect ratio greater than 1 (i.e. height < width)
 	         int height = (int) Math.ceil(width / imageAspectRatio);
 	         setMeasuredDimension(width, height);
          } else {
+        	 // If there's no drawable we don't know what the aspect ratio will be
              super.onMeasure(widthMeasureSpec, heightMeasureSpec);
          }
     }

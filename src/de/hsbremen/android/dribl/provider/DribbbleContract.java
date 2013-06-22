@@ -20,7 +20,8 @@ public final class DribbbleContract {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/image";
 		
 		public static final String _ID = BaseColumns._ID;
-		public static final String IMAGE_URL = "image_url";	
+		public static final String IMAGE_URL = "image_url";
+		public static final String TITLE = "title";	
 	}
 	
 }

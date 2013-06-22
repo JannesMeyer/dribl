@@ -96,6 +96,9 @@ public class ImageListCursorAdapter extends CursorAdapter {
 			.setFadeIn(true)
 			.load(listItem.image, imageUrlString);
 		
+//		listItem.title.setText(imageUrlString);
+		listItem.title.setText(cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.TITLE)));
+		
 //		final Bitmap cachedBitmap = getBitmapFromMemCache(imageUrl.toString());
 //		if (cachedBitmap != null) {
 ////			listItem.progressIndicator.setVisibility(View.GONE);
@@ -120,10 +123,6 @@ public class ImageListCursorAdapter extends CursorAdapter {
 //		        // TODO: Display network connectivity error
 //		    }			
 //		}
-		
-
-
-		listItem.title.setText(imageUrlString);
 	}
  
 	@Override
