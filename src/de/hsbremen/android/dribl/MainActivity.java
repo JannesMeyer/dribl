@@ -41,23 +41,19 @@ public class MainActivity extends FragmentActivity {
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
         
         // NavigationDrawer
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.open_drawer, R.string.close_drawer) {
-        	public void onDrawerOpened(View drawerView) {
-        	}
-        	public void onDrawerClosed(View view) {
-        	}
-        };
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.open_drawer, R.string.close_drawer);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         
-        // Set list contents
+        // Get all menu items
         mListItems = getResources().getStringArray(R.array.menu_items);
+        
+        // Set list contents
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.row_navigationdrawer, mListItems);
         mDrawerList.setAdapter(adapter);
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         
-        
+        // Set inital fragment
         if (savedInstanceState == null) {
-            // Set inital fragment
             selectItem(0);
             mDrawerList.setItemChecked(0, true);
         }

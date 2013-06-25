@@ -11,8 +11,8 @@
         <item>Popular</item>
         <item>Everyone</item>
         <item>Debuts</item>
-        <item>Categories</item>
-        <item>Collections</item>
+        <item>My Collection</item>
+        <item>@string/action_settings</item>
     </string-array>
     
     <string name="detail_views">Views</string>
