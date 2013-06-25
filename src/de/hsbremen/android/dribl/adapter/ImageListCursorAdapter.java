@@ -1,8 +1,5 @@
 package de.hsbremen.android.dribl.adapter;
 
-import java.io.File;
-
-import android.app.ActivityManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
@@ -16,6 +13,7 @@ import android.widget.TextView;
 import com.webimageloader.ImageLoader;
 import com.webimageloader.ext.ImageHelper;
 
+import de.hsbremen.android.dribl.DriblApplication;
 import de.hsbremen.android.dribl.R;
 import de.hsbremen.android.dribl.provider.DribbbleContract;
 
@@ -34,21 +32,11 @@ public class ImageListCursorAdapter extends CursorAdapter {
 	public ImageListCursorAdapter(Context context, Cursor cursor) {
 		super(context, cursor, 0);
 		mInflater = LayoutInflater.from(context);
+		mImageLoader = ((DriblApplication) context.getApplicationContext()).getImageLoader();
 		
 		Log.d("Dribl", "New ImageListCursorAdapter instance");
 		
-		// Get memory class of this device, exceeding this amount will throw an
-		// OutOfMemory exception.
-		ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-		int memClass = am.getMemoryClass();
-
-		// Use part of the available memory for memory cache.
-		final int memoryCacheSize = 1024 * 1024 * memClass / 8;
-
-		File cacheDir = new File(context.getExternalCacheDir(), "images");
-		mImageLoader = new ImageLoader.Builder(context)
-		        .enableDiskCache(cacheDir, 10 * 1024 * 1024)
-		        .enableMemoryCache(memoryCacheSize).build();
+		
 		
 //		connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		
@@ -242,4 +230,9 @@ public class ImageListCursorAdapter extends CursorAdapter {
 //        }
 //    }
 
+	
+	@Override
+	public boolean hasStableIds() {
+		return true;
+	}
 }

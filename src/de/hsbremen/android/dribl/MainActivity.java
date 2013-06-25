@@ -23,6 +23,7 @@ import de.hsbremen.android.dribl.fragments.HelloWorldFragment;
 
 public class MainActivity extends FragmentActivity {
 
+	private String[] mListItems;
 	private ListView mDrawerList;
 	private DrawerLayout mDrawerLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
@@ -49,8 +50,8 @@ public class MainActivity extends FragmentActivity {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         
         // Set list contents
-        String[] listItems = getResources().getStringArray(R.array.menu_items);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.row_navigationdrawer, listItems);
+        mListItems = getResources().getStringArray(R.array.menu_items);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.row_navigationdrawer, mListItems);
         mDrawerList.setAdapter(adapter);
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         
@@ -82,13 +83,29 @@ public class MainActivity extends FragmentActivity {
      */
     private void selectItem(int position) {
     	Fragment newFragment;
+    	Bundle args = new Bundle();
+    	args.putString("title", mListItems[position]);
     	switch (position) {
 	    	case 0:
 	    		newFragment = new StreamFragment();
+	    		args.putString("list", "popular");
+	    		break;
+	    	case 1:
+	    		newFragment = new StreamFragment();
+	    		args.putString("list", "everyone");
+	    		break;
+	    	case 2:
+	    		newFragment = new StreamFragment();
+	    		args.putString("list", "debuts");
 	    		break;
 	    	default:
 	    		newFragment = new HelloWorldFragment();
     	}
+    	
+    	// Set arguments
+    	newFragment.setArguments(args);
+    	
+    	// Replace the fragment in a FragmentTransaction    	
     	FragmentManager fm = getSupportFragmentManager();
     	if (fm != null) {
     		fm.beginTransaction().replace(R.id.content_frame, newFragment).commit();
@@ -96,9 +113,6 @@ public class MainActivity extends FragmentActivity {
     		Log.d("Dribl", "FragmentManager is null");
     	}
     	
-    	
-    	// Highlight selected item
-//    	mDrawerList.setItemChecked(position, true);
     	// Close drawer on click
     	mDrawerLayout.closeDrawer(mDrawerList);
     }
