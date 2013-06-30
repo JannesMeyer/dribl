@@ -64,7 +64,6 @@ public class IconTextArrayAdapter extends BaseAdapter {
 	@Override
 	public String getItem(int position) {
 		throw new UnsupportedOperationException("getItem is not supported yet");
-//		return mStrings[position];
 	}
 
 	@Override
@@ -75,6 +74,8 @@ public class IconTextArrayAdapter extends BaseAdapter {
 
 	@Override
 	public boolean hasStableIds() {
+		// We're using positions as the ID of an item.
+		// That means we can't have re-ordering with stable IDs.
 		return true;
 	}
 

@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import de.hsbremen.android.dribl.fragments.StreamFragment;
 import de.hsbremen.android.dribl.fragments.HelloWorldFragment;
+import de.hsbremen.android.dribl.provider.DribbbleContract;
 
 
 
@@ -84,15 +85,15 @@ public class MainActivity extends FragmentActivity {
     	switch (position) {
 	    	case 0:
 	    		newFragment = new StreamFragment();
-	    		args.putString("list", "popular");
+	    		args.putParcelable(StreamFragment.ARGUMENT_CONTENT_URI, DribbbleContract.Image.STREAM_POPULAR_URI);
 	    		break;
 	    	case 1:
 	    		newFragment = new StreamFragment();
-	    		args.putString("list", "everyone");
+	    		args.putParcelable(StreamFragment.ARGUMENT_CONTENT_URI, DribbbleContract.Image.STREAM_EVERYONE_URI);
 	    		break;
 	    	case 2:
 	    		newFragment = new StreamFragment();
-	    		args.putString("list", "debuts");
+	    		args.putParcelable(StreamFragment.ARGUMENT_CONTENT_URI, DribbbleContract.Image.STREAM_POPULAR_URI);
 	    		break;
 	    	default:
 	    		newFragment = new HelloWorldFragment();

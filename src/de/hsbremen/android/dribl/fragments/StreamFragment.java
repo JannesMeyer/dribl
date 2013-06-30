@@ -3,6 +3,7 @@ package de.hsbremen.android.dribl.fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -18,12 +19,14 @@ import android.widget.GridView;
 import de.hsbremen.android.dribl.DetailActivity;
 import de.hsbremen.android.dribl.R;
 import de.hsbremen.android.dribl.adapter.ImageListCursorAdapter;
-import de.hsbremen.android.dribl.provider.DribbbleContract;
 
 public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>, OnItemClickListener {
 	
+	public static final String ARGUMENT_CONTENT_URI = "content_uri";
+	
 	Activity mActivity;
 	CursorAdapter mAdapter;
+	Uri mContentUri;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -51,6 +54,7 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>,
 		
 		// Get the fragment's initialization arguments
 		Bundle args = getArguments();
+		mContentUri = args.getParcelable(ARGUMENT_CONTENT_URI);
 		
 		// Create cursor adapter (without a cursor yet)
 		// Attention! This activity might not exist for the whole lifetime of the adapter,
@@ -58,18 +62,17 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>,
 		mAdapter = new ImageListCursorAdapter(mActivity, null);
 		
 		// Init loader and set 'this' as LoaderCallback
-		getLoaderManager().initLoader(0, args, this);
+		getLoaderManager().initLoader(0, null, this);
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		// These IDs should be global to the application
 		if (id == 0) {
-			// Create a loader that loads a stream of images
-			final String selection = "list = ?";
-			final String[] selectionArgs = { args.getString("list") };
-			return new CursorLoader(mActivity, DribbbleContract.Image.CONTENT_URI, null, selection, selectionArgs, null);
+			// Create a loader for the requested image list
+			return new CursorLoader(mActivity, mContentUri, null, null, null, null);
 		} else {
-			throw new IllegalArgumentException("Invalid loader ID");
+			throw new IllegalArgumentException("Unknown loader ID");
 		}
 	}
 
@@ -100,7 +103,10 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>,
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		// Open the detail view for this item
 		Intent intent = new Intent(mActivity, DetailActivity.class);
+		intent.putExtra(DetailActivity.EXTRA_BASE_URI, mContentUri);
+		intent.putExtra(DetailActivity.EXTRA_ID, id);
     	startActivity(intent);
 	}
 	

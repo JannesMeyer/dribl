@@ -15,16 +15,18 @@ public final class DribbbleContract {
 		// This class cannot be instantiated
 		private Image() {}
 		
-		public static final Uri CONTENT_URI = Uri.withAppendedPath(AUTHORITY_URI, "images");
 		public static final Uri STREAM_EVERYONE_URI = Uri.withAppendedPath(AUTHORITY_URI, "everyone");
 		public static final Uri STREAM_POPULAR_URI = Uri.withAppendedPath(AUTHORITY_URI, "popular");
 		public static final Uri STREAM_DEBUTS_URI = Uri.withAppendedPath(AUTHORITY_URI, "debuts");
+		
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/image";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/image";
 		
 		public static final String _ID = BaseColumns._ID;
+		public static final String URL = "url";
 		public static final String IMAGE_URL = "image_url";
-		public static final String TITLE = "title";	
+		public static final String TITLE = "title";
+		public static final String AUTHOR = "author";	
 	}
 	
 }

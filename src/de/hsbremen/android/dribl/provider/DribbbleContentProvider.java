@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -19,6 +20,7 @@ import org.json.JSONObject;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MatrixCursor.RowBuilder;
@@ -27,25 +29,22 @@ import android.util.Log;
 
 public class DribbbleContentProvider extends ContentProvider {
 
-	private enum RequestType {
-		PopularList,
-		EveryoneList,
-		DebutsList,
-		SearchResultList
-	};
+	private static final int STREAM = 1;
+	private static final int STREAM_ID = 2;
 	
-	// We need a Hashtable to be thread-safe
-	private Hashtable<RequestType, Cursor> responseCache = new Hashtable<RequestType, Cursor>();
+	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+	
+	// We need a Hashtable instead of a HashMap to be thread-safe
+	private Map<String, Cursor> responseCache = new Hashtable<String, Cursor>();
+	
+	static {
+		sURIMatcher.addURI(DribbbleContract.AUTHORITY, "*", STREAM);
+        sURIMatcher.addURI(DribbbleContract.AUTHORITY, "*/#", STREAM_ID);
+	}
 	
 	@Override
 	public boolean onCreate() {
 		Log.d("Dribl", "New DribbbleContentProvider instance");
-//		sUriMatcher.addURI("com.example.app.provider", "table3", 1);
-
-	    // Store a maximum of 10 responses in the cache. A typical response is about 20KB in size.
-//	    final int cacheSize = 10;
-//	    responseCache = new LruCache<String, String>(cacheSize);
-	    
 		return true;
 	}
 	
@@ -55,7 +54,7 @@ public class DribbbleContentProvider extends ContentProvider {
 	 * @param key
 	 * @param response
 	 */
-	public synchronized void addResponseToMemoryCache(RequestType key, Cursor response) {
+	public synchronized void addResponseToMemoryCache(String key, Cursor response) {
 		if (responseCache.get(key) == null) {
             responseCache.put(key, response);
         }
@@ -63,8 +62,15 @@ public class DribbbleContentProvider extends ContentProvider {
 	
 	@Override
 	public String getType(Uri uri) {
-		// TODO Auto-generated method stub
-		return null;
+		switch (sURIMatcher.match(uri)) {
+		case STREAM:
+			return DribbbleContract.Image.CONTENT_TYPE;
+		case STREAM_ID:
+			return DribbbleContract.Image.CONTENT_ITEM_TYPE;
+		default:
+			// Error
+			throw new IllegalArgumentException("Unrecognized URI");
+		}
 	}
 
 	/**
@@ -73,53 +79,48 @@ public class DribbbleContentProvider extends ContentProvider {
 	 */
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		// TODO: Add support for projection, selection
+		String listName;
+		Cursor cursor;
 		
-		// Determine the type of this request (we are caching each type separately)
-		RequestType requestType;
-		if (selection.equals("list = ?")) {
-			if (selectionArgs[0].equals("popular")) {
-				requestType = RequestType.PopularList;
-			} else if (selectionArgs[0].equals("everyone")) {
-				requestType = RequestType.EveryoneList;
-			} else if (selectionArgs[0].equals("debuts")) {
-				requestType = RequestType.DebutsList;
-			} else {
-				throw new IllegalArgumentException("Illegal selection argument");
-			}
-		} else if (selection.equals("q = ?")) {
-			// Not supported yet
-			requestType = RequestType.SearchResultList;
-		} else {
-			throw new IllegalArgumentException("Illegal selection");
-		}
+		switch (sURIMatcher.match(uri)) {
+		case STREAM:
+			listName = uri.getPathSegments().get(0); 
 
-		// Query the cache
-		Cursor cursor = responseCache.get(requestType);
-		if (cursor == null) {
-			// Cache miss, do a download
-			String url = getApiUrlForRequestType(requestType, null);
-			cursor = loadStreamAsMatrixCursor(url);
-			// Save the response to the cache
-			addResponseToMemoryCache(requestType, cursor);
+			cursor = responseCache.get(listName);
+			// Cache miss
+			if (cursor == null) {
+				cursor = loadStreamAsMatrixCursor("http://api.dribbble.com/shots/" + listName);
+				addResponseToMemoryCache(listName, cursor);
+			}
+			
+			return cursor;
+			
+		case STREAM_ID:
+			listName = uri.getPathSegments().get(0);
+			cursor = responseCache.get(listName);
+			// Cache miss
+			if (cursor == null) {
+				cursor = loadStreamAsMatrixCursor("http://api.dribbble.com/shots/" + listName);
+				addResponseToMemoryCache(listName, cursor);
+			}
+
+			long id = Long.parseLong(uri.getLastPathSegment());
+			
+			// Read through the cursor from the beginning
+			cursor.moveToPosition(-1);
+			while (cursor.moveToNext()) {
+				long currentId = cursor.getLong(cursor.getColumnIndex(DribbbleContract.Image._ID));
+				if (id == currentId) {
+					break;
+				}
+			}
+
+			return cursor;
+
+		default:
+			// Error
+			throw new IllegalArgumentException("Unrecognized URI");
 		}
-		
-		return cursor;
-	}
-	
-	private static String getApiUrlForRequestType(RequestType type, String args) {
-		// Find the appropriate API endpoint for this request
-		switch (type) {
-		case PopularList:
-			return "http://api.dribbble.com/shots/popular";
-		case EveryoneList:
-			return "http://api.dribbble.com/shots/everyone";
-		case DebutsList:
-			return "http://api.dribbble.com/shots/debuts";
-		case SearchResultList:
-			// not implemented
-		}
-		return null;
 	}
 	
 	/**
@@ -128,6 +129,8 @@ public class DribbbleContentProvider extends ContentProvider {
 	 * @return MatrixCursor with data on success, or null on failure
 	 */
 	private static MatrixCursor loadStreamAsMatrixCursor(String url) {
+		// TODO: Add support for projection, selection
+
 		// If the synchronous download fails the String will be empty
 		String response = loadStringFromUrl(url);
 		if (response.isEmpty()) {
@@ -138,8 +141,10 @@ public class DribbbleContentProvider extends ContentProvider {
 		try {
 			MatrixCursor out = new MatrixCursor(new String[] {
 					DribbbleContract.Image._ID,
+					DribbbleContract.Image.URL,
 					DribbbleContract.Image.IMAGE_URL,
-					DribbbleContract.Image.TITLE
+					DribbbleContract.Image.TITLE,
+					DribbbleContract.Image.AUTHOR
 				});
 			JSONObject object = new JSONObject(response);
 			JSONArray shots = object.getJSONArray("shots");
@@ -149,6 +154,10 @@ public class DribbbleContentProvider extends ContentProvider {
 				RowBuilder row = out.newRow();
 				// Add the id
 				row.add(shot.getLong("id"));
+				
+				// Add the url
+				row.add(shot.getString("url"));
+				
 				// Always load the non-retina version (400x300)
 				if (shot.has("image_400_url")) {
 					row.add(shot.getString("image_400_url"));
@@ -157,6 +166,10 @@ public class DribbbleContentProvider extends ContentProvider {
 				}	
 				// Add the title
 				row.add(shot.getString("title"));
+				
+				// Add the author
+				JSONObject player = shot.getJSONObject("player");
+				row.add(player.getString("name"));
 			}
 			// Return the MatrixCursor
 			return out;
