@@ -1,5 +1,6 @@
 package de.hsbremen.android.dribl;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Intent;
@@ -21,55 +22,62 @@ public class DetailActivity extends Activity {
 	public static final String EXTRA_BASE_URI = "content_uri";
 	public static final String EXTRA_ID = "id";
 
+	private ActionBar mActionBar;
+	private ImageLoader mImageLoader;
+	private ImageView mImageView;
+	private TextView mTitleText;
+	private TextView mAuthorText;	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_detail);
 		
-		ImageLoader imageLoader = ((DriblApplication) getApplicationContext()).getImageLoader();
-		ImageView imageView = (ImageView) findViewById(R.id.image);
-		TextView titleText = (TextView) findViewById(R.id.title);
-		TextView authorText = (TextView) findViewById(R.id.author);
+		mActionBar = getActionBar();
+		mImageLoader = ((DriblApplication) getApplicationContext()).getImageLoader();
+		mImageView = (ImageView) findViewById(R.id.image);
+		mTitleText = (TextView) findViewById(R.id.title);
+		mAuthorText = (TextView) findViewById(R.id.author);
 		
+		// Setup action bar
+		mActionBar.setDisplayHomeAsUpEnabled(true);
 		
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		
-		Intent in = getIntent();
-		Uri baseUri = in.getParcelableExtra(EXTRA_BASE_URI);
-		long id = in.getLongExtra(EXTRA_ID, -1);
+		// Get intent data
+		Intent intent = getIntent();
+		Uri baseUri = intent.getParcelableExtra(EXTRA_BASE_URI);
+		long id = intent.getLongExtra(EXTRA_ID, -1);
 		if (baseUri == null || id == -1) {
 			throw new IllegalArgumentException("Missing arguments");
 		}
 		
 		// Get a cursor that's position is set to the current image
-		Uri contentUri = ContentUris.withAppendedId(baseUri, id);
-		Cursor cursor = getContentResolver().query(contentUri, null, null, null, null);
-		if (cursor == null) {
-			// Fail gracefully
-			return;
+		Cursor cursor = getContentResolver().query(ContentUris.withAppendedId(baseUri, id),
+				null,  // No projection
+				null,  // No selection
+				null,  // No selectionArgs
+				null   // No sortOrder
+			);
+		if (cursor != null) {
+			// Get the data from the cursor
+			final String imageUrl = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.IMAGE_URL));
+			final String title = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.TITLE));
+			final String author = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.AUTHOR));
+			
+			// Load image
+			new ImageHelper(this, mImageLoader)
+				.setLoadingResource(R.drawable.placeholder)
+				.load(mImageView, imageUrl);
+			// Set text
+			mActionBar.setTitle(title);
+			mTitleText.setText(title);
+			mAuthorText.setText(author);
 		}
-		
-		final String imageUrl = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.IMAGE_URL));
-		final String title = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.TITLE));
-		final String author = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.AUTHOR));
-		
-		// Load image
-		new ImageHelper(this, imageLoader)
-			.setLoadingResource(R.drawable.placeholder)
-			.load(imageView, imageUrl);
-		
-		// Set title
-		getActionBar().setTitle(title);
-		titleText.setText(title);
-		
-		// Set author
-		authorText.setText(author);
 	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			// This call is only needed for compatibility with old API levels
+			// This call is only needed for compatibility with older API levels
 			case android.R.id.home:
 				NavUtils.navigateUpFromSameTask(this);
 				return true;

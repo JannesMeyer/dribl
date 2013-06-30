@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,8 +15,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import de.hsbremen.android.dribl.fragments.StreamFragment;
 import de.hsbremen.android.dribl.fragments.HelloWorldFragment;
+import de.hsbremen.android.dribl.fragments.StreamFragment;
 import de.hsbremen.android.dribl.provider.DribbbleContract;
 
 
@@ -79,6 +78,10 @@ public class MainActivity extends FragmentActivity {
      * @param position
      */
     private void selectItem(int position) {
+    	// Close the drawer
+    	mDrawerLayout.closeDrawer(mDrawerList);
+    	
+    	// Process the tap
     	Fragment newFragment;
     	Bundle args = new Bundle();
     	args.putString("title", mListItems[position]);
@@ -104,14 +107,9 @@ public class MainActivity extends FragmentActivity {
     	
     	// Replace the fragment in a FragmentTransaction    	
     	FragmentManager fm = getSupportFragmentManager();
-    	if (fm != null) {
-    		fm.beginTransaction().replace(R.id.content_frame, newFragment).commit();
-    	} else {
-    		Log.d("Dribl", "FragmentManager is null");
-    	}
-    	
-    	// Close drawer on click
-    	mDrawerLayout.closeDrawer(mDrawerList);
+    	fm.beginTransaction()
+    	  .replace(R.id.content_frame, newFragment)
+    	  .commit();
     }
 
 	@Override

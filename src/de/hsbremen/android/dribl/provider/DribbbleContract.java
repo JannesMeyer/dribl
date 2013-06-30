@@ -26,7 +26,10 @@ public final class DribbbleContract {
 		public static final String URL = "url";
 		public static final String IMAGE_URL = "image_url";
 		public static final String TITLE = "title";
-		public static final String AUTHOR = "author";	
+		public static final String AUTHOR = "author";
+		public static final String LIKES_COUNT = "likes_count";
+		public static final String REBOUNDS_COUNT = "rebounds_count";
+		public static final String COMMENTS_COUNT = "comments_count";
 	}
 	
 }

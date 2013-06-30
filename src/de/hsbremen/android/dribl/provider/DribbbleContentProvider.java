@@ -32,11 +32,10 @@ public class DribbbleContentProvider extends ContentProvider {
 	private static final int STREAM = 1;
 	private static final int STREAM_ID = 2;
 	
-	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-	
 	// We need a Hashtable instead of a HashMap to be thread-safe
 	private Map<String, Cursor> responseCache = new Hashtable<String, Cursor>();
 	
+	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	static {
 		sURIMatcher.addURI(DribbbleContract.AUTHORITY, "*", STREAM);
         sURIMatcher.addURI(DribbbleContract.AUTHORITY, "*/#", STREAM_ID);
@@ -54,12 +53,19 @@ public class DribbbleContentProvider extends ContentProvider {
 	 * @param key
 	 * @param response
 	 */
-	public synchronized void addResponseToMemoryCache(String key, Cursor response) {
-		if (responseCache.get(key) == null) {
-            responseCache.put(key, response);
-        }
+	public void addResponseToMemoryCache(String key, Cursor response) {
+		synchronized(responseCache) {
+			if (responseCache.get(key) == null) {
+	            responseCache.put(key, response);
+	        }			
+		}
 	}
 	
+	
+	/**
+	 * Returns the MIME-Type that a query with this URI would return.
+	 * @return MIME-Type
+	 */
 	@Override
 	public String getType(Uri uri) {
 		switch (sURIMatcher.match(uri)) {
@@ -68,25 +74,29 @@ public class DribbbleContentProvider extends ContentProvider {
 		case STREAM_ID:
 			return DribbbleContract.Image.CONTENT_ITEM_TYPE;
 		default:
-			// Error
+			// Unrecognized URI
 			throw new IllegalArgumentException("Unrecognized URI");
 		}
 	}
 
 	/**
-	 * The sortOrder parameter is unsupported because the Dribbble API already sorts the data
-	 * by the desired criteria
+	 * Loads data from the Dribbble API.
+	 * 
+	 * @param uri that points to the content
+	 * @param projection is unsupported
+	 * @param selection is unsupported
+	 * @param selectionArgs is unsupported
+	 * @param sortOrder is unsupported 
+	 * @return Cursor that points to a list of Dribbble images
 	 */
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		String listName;
-		Cursor cursor;
-		
 		switch (sURIMatcher.match(uri)) {
 		case STREAM:
-			listName = uri.getPathSegments().get(0); 
-
-			cursor = responseCache.get(listName);
+		{
+			String listName = uri.getPathSegments().get(0); 
+			Cursor cursor = responseCache.get(listName);
+			
 			// Cache miss
 			if (cursor == null) {
 				cursor = loadStreamAsMatrixCursor("http://api.dribbble.com/shots/" + listName);
@@ -94,87 +104,92 @@ public class DribbbleContentProvider extends ContentProvider {
 			}
 			
 			return cursor;
-			
+		}	
 		case STREAM_ID:
-			listName = uri.getPathSegments().get(0);
-			cursor = responseCache.get(listName);
+		{
+			long id = Long.parseLong(uri.getLastPathSegment());
+			String listName = uri.getPathSegments().get(0);
+			Cursor cursor = responseCache.get(listName);
+			
 			// Cache miss
 			if (cursor == null) {
 				cursor = loadStreamAsMatrixCursor("http://api.dribbble.com/shots/" + listName);
 				addResponseToMemoryCache(listName, cursor);
 			}
-
-			long id = Long.parseLong(uri.getLastPathSegment());
 			
 			// Read through the cursor from the beginning
 			cursor.moveToPosition(-1);
 			while (cursor.moveToNext()) {
 				long currentId = cursor.getLong(cursor.getColumnIndex(DribbbleContract.Image._ID));
 				if (id == currentId) {
-					break;
+					// Return the cursor with its position set to the requested element
+					return cursor;
 				}
 			}
-
-			return cursor;
-
+			return null;
+		}
 		default:
-			// Error
+			// Unrecognized URI
 			throw new IllegalArgumentException("Unrecognized URI");
 		}
 	}
 	
 	/**
-	 * Downloads data from the Dribbble api and parses the JSON response into a MatrixCursor of shots
+	 * Downloads data from the Dribbble api and parses the JSON response into a MatrixCursor of shots.
+	 * An example of the response structure can be found here:
+	 * http://api.dribbble.com/shots/popular
+	 *
+	 * projection, selection and sortOrder are unsupported
+	 * 
 	 * @param url
 	 * @return MatrixCursor with data on success, or null on failure
 	 */
 	private static MatrixCursor loadStreamAsMatrixCursor(String url) {
-		// TODO: Add support for projection, selection
-
-		// If the synchronous download fails the String will be empty
 		String response = loadStringFromUrl(url);
-		if (response.isEmpty()) {
+		if (response == null) {
 			return null;
 		}
 		
+		// Setup the MatrixCursor
+		MatrixCursor out = new MatrixCursor(new String[] {
+				DribbbleContract.Image._ID,
+				DribbbleContract.Image.URL,
+				DribbbleContract.Image.IMAGE_URL,
+				DribbbleContract.Image.TITLE,
+				DribbbleContract.Image.AUTHOR,
+				DribbbleContract.Image.LIKES_COUNT,
+				DribbbleContract.Image.COMMENTS_COUNT,
+				DribbbleContract.Image.REBOUNDS_COUNT
+			});
+		
 		// Parse the JSON response
 		try {
-			MatrixCursor out = new MatrixCursor(new String[] {
-					DribbbleContract.Image._ID,
-					DribbbleContract.Image.URL,
-					DribbbleContract.Image.IMAGE_URL,
-					DribbbleContract.Image.TITLE,
-					DribbbleContract.Image.AUTHOR
-				});
 			JSONObject object = new JSONObject(response);
 			JSONArray shots = object.getJSONArray("shots");
 			for (int i = 0, len = shots.length(); i < len; ++i) {
+				// Get nodes
 				JSONObject shot = shots.getJSONObject(i);
-				// Add row to the MatrixCursor
-				RowBuilder row = out.newRow();
-				// Add the id
-				row.add(shot.getLong("id"));
+				JSONObject player = shot.getJSONObject("player");
 				
-				// Add the url
+				// Add a new row to the MatrixCursor
+				RowBuilder row = out.newRow();
+				
+				// ID, URL, Title, likes, comments, rebounds, author
+				row.add(shot.getLong("id"));
 				row.add(shot.getString("url"));
+				row.add(shot.getString("title"));
+				row.add(shot.getInt("likes_count"));
+				row.add(shot.getInt("comments_count"));
+				row.add(shot.getInt("rebounds_count"));
+				row.add(player.getString("name"));
 				
 				// Always load the non-retina version (400x300)
-				if (shot.has("image_400_url")) {
-					row.add(shot.getString("image_400_url"));
-				} else {
-					row.add(shot.getString("image_url"));
-				}	
-				// Add the title
-				row.add(shot.getString("title"));
-				
-				// Add the author
-				JSONObject player = shot.getJSONObject("player");
-				row.add(player.getString("name"));
+				row.add(shot.getString(shot.has("image_400_url") ? "image_400_url" : "image_url"));
 			}
-			// Return the MatrixCursor
+			
 			return out;
 		} catch (JSONException e) {
-			// Log the error and return null
+			// The JSON response unexpected, return nothing
 			Log.e("Dribl", e.getClass().getSimpleName() + ": " + e.getMessage());
 			return null;
 		}
@@ -198,13 +213,17 @@ public class DribbbleContentProvider extends ContentProvider {
 					builder.append(line);
 				}
 			} else {
-				Log.e("Dribl", "Failed to download file");
+				Log.e("Dribl", "Failed to download the data");
+				return null;
 			}
 		} catch (ClientProtocolException e) {
-			Log.e("Dribl", e.getMessage());
+			Log.e("Dribl", e.getClass().getSimpleName() + ": " + e.getMessage());
+			return null;
 		} catch (IOException e) {
-			Log.e("Dribl", e.getMessage());
+			Log.e("Dribl", e.getClass().getSimpleName() + ": " + e.getMessage());
+			return null;
 		}
+		
 		return builder.toString();
 	}
 	
