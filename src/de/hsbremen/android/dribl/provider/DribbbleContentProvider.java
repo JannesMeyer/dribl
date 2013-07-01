@@ -154,12 +154,12 @@ public class DribbbleContentProvider extends ContentProvider {
 		MatrixCursor out = new MatrixCursor(new String[] {
 				DribbbleContract.Image._ID,
 				DribbbleContract.Image.URL,
-				DribbbleContract.Image.IMAGE_URL,
 				DribbbleContract.Image.TITLE,
-				DribbbleContract.Image.AUTHOR,
 				DribbbleContract.Image.LIKES_COUNT,
 				DribbbleContract.Image.COMMENTS_COUNT,
-				DribbbleContract.Image.REBOUNDS_COUNT
+				DribbbleContract.Image.REBOUNDS_COUNT,
+				DribbbleContract.Image.AUTHOR,
+				DribbbleContract.Image.IMAGE_URL
 			});
 		
 		// Parse the JSON response
