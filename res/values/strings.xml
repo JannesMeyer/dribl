@@ -31,6 +31,9 @@
     <string name="loading">Loading image list…</string>
     
     <string name="contentdescription_image">Image loaded from the web</string>
-    <string name="title_activity_detail">DetailActivity</string>
+    
+    <string name="detail_title">Title</string>
+    <string name="detail_by">by </string>
+    <string name="detail_author">Author</string> 
 
 </resources>
