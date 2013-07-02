@@ -8,12 +8,9 @@
     <string name="close_drawer">Close Drawer Navigation</string>
 
     <string-array name="menu_items">
-        <item>Popular</item>
-        <item>Everyone</item>
-        <item>Debuts</item>
+        <item>Stream</item>
         <item>My Collection</item>
         <item>@string/action_settings</item>
-        <item>Stream</item>
     </string-array>
     
     <string name="detail_views">Views</string>

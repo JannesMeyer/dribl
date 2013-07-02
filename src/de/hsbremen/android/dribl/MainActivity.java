@@ -16,9 +16,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import de.hsbremen.android.dribl.fragments.HelloWorldFragment;
-import de.hsbremen.android.dribl.fragments.StreamFragment;
 import de.hsbremen.android.dribl.fragments.StreamPagerFragment;
-import de.hsbremen.android.dribl.provider.DribbbleContract;
 
 
 
@@ -82,34 +80,17 @@ public class MainActivity extends FragmentActivity {
     	// Close the drawer
     	mDrawerLayout.closeDrawer(mDrawerList);
     	
-    	// Process the tap
+    	// Create the new fragment that should be opened
     	Fragment newFragment;
-    	Bundle args = new Bundle();
-    	args.putString("title", mListItems[position]);
-    	switch (position) {
-	    	case 0:
-	    		newFragment = new StreamFragment();
-	    		args.putParcelable(StreamFragment.ARGUMENT_CONTENT_URI, DribbbleContract.Image.STREAM_POPULAR_URI);
-	    		break;
-	    	case 1:
-	    		newFragment = new StreamFragment();
-	    		args.putParcelable(StreamFragment.ARGUMENT_CONTENT_URI, DribbbleContract.Image.STREAM_EVERYONE_URI);
-	    		break;
-	    	case 2:
-	    		newFragment = new StreamFragment();
-	    		args.putParcelable(StreamFragment.ARGUMENT_CONTENT_URI, DribbbleContract.Image.STREAM_POPULAR_URI);
-	    		break;
-	    	case 5:
-	    		newFragment = new StreamPagerFragment();
-	    		break;
-	    	default:
-	    		newFragment = new HelloWorldFragment();
+    	if (position == 0) {
+    		// Stream
+    		newFragment = new StreamPagerFragment();
+    	} else {
+    		// All else
+    		newFragment = new HelloWorldFragment();
     	}
     	
-    	// Set arguments
-    	newFragment.setArguments(args);
-    	
-    	// Replace the fragment in a FragmentTransaction    	
+    	// Replace the fragment    	
     	FragmentManager fm = getSupportFragmentManager();
     	fm.beginTransaction()
     	  .replace(R.id.content_frame, newFragment)
