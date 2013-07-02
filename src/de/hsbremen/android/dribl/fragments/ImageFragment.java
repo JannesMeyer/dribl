@@ -12,7 +12,7 @@ public class ImageFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_image, container, false);
+		View view = inflater.inflate(R.layout.component_image, container, false);
 		return view;
 	}
 	

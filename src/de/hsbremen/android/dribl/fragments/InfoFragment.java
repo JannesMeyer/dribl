@@ -44,7 +44,7 @@ public class InfoFragment extends Fragment {
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_imageinfo, container, false);
+		View view = inflater.inflate(R.layout.component_imageinfo, container, false);
 
 		ListView detailList = (ListView) view.findViewById(R.id.detailList);
 		detailList.setAdapter(mListAdapter);
