@@ -57,6 +57,10 @@ public class StreamPagerFragment extends Fragment {
         
         mTabs = (PagerSlidingTabStrip) view.findViewById(R.id.tabs);
         mTabs.setViewPager(mPager);
+      
+        // Style
+        mTabs.setIndicatorColor(getResources().getColor(R.color.tabs_indicator_color));
+        
         
         return view;
 	}

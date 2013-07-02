@@ -8,7 +8,7 @@
     <string name="close_drawer">Close Drawer Navigation</string>
 
     <string-array name="menu_items">
-        <item>Stream</item>
+        <item>Streams</item>
         <item>My Collection</item>
         <item>@string/action_settings</item>
     </string-array>

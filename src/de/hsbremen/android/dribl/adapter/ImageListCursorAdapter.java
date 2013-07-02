@@ -3,7 +3,6 @@ package de.hsbremen.android.dribl.adapter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,9 +32,6 @@ public class ImageListCursorAdapter extends CursorAdapter {
 		super(context, cursor, 0);
 		mInflater = LayoutInflater.from(context);
 		mImageLoader = ((DriblApplication) context.getApplicationContext()).getImageLoader();
-		
-		Log.d("Dribl", "New ImageListCursorAdapter instance");
-		
 		
 		
 //		connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

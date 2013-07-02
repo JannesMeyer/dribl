@@ -36,6 +36,7 @@ public class DribbbleContentProvider extends ContentProvider {
 	private Map<String, Cursor> responseCache = new Hashtable<String, Cursor>();
 	
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+	
 	static {
 		sURIMatcher.addURI(DribbbleContract.AUTHORITY, "*", STREAM);
         sURIMatcher.addURI(DribbbleContract.AUTHORITY, "*/#", STREAM_ID);
@@ -60,7 +61,6 @@ public class DribbbleContentProvider extends ContentProvider {
 	        }			
 		}
 	}
-	
 	
 	/**
 	 * Returns the MIME-Type that a query with this URI would return.
