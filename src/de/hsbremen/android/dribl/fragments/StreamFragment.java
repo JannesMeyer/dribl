@@ -18,6 +18,7 @@ import android.widget.GridView;
 import de.hsbremen.android.dribl.DetailActivity;
 import de.hsbremen.android.dribl.R;
 import de.hsbremen.android.dribl.adapter.ImageListCursorAdapter;
+import de.hsbremen.android.dribl.provider.DribbbleContract;
 
 public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>, OnItemClickListener {
 	
@@ -50,7 +51,7 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>,
 		super.onCreate(savedInstanceState);
 		
 		// Retain this fragment between orientation changes
-		setRetainInstance(true);
+//		setRetainInstance(true);
 		
 		// Create cursor adapter (without a cursor yet)
 		// Attention! This activity might not exist for the whole lifetime of the adapter,
@@ -66,8 +67,10 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>,
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
 		// Init loader and set 'this' as LoaderCallback
+		// This has to be done in onActivityCreated and not in onCreate
+		// for some weird reason. If you do it in onCreate the app will crash
+		// after a while, which is really weird.
 		getLoaderManager().initLoader(0, null, this);
 	}
 
@@ -76,7 +79,18 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>,
 		// These IDs should be global to the application
 		if (id == 0) {
 			// Create a loader for the requested image list
-			return new CursorLoader(getActivity(), mContentUri, null, null, null, null);
+			if (mContentUri.equals(DribbbleContract.Image.SEARCH_URI)) {
+				// Search
+				return new CursorLoader(getActivity(), mContentUri,
+					null, // No projection
+					"q = ?",
+					new String[] { mSearchQuery },
+					null // No sort order
+				);
+			} else {
+				// Popular, Everyone or Debuts stream
+				return new CursorLoader(getActivity(), mContentUri, null, null, null, null);				
+			}
 		} else {
 			throw new IllegalArgumentException("Unknown loader ID");
 		}

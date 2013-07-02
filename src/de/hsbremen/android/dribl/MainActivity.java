@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,6 +27,7 @@ import de.hsbremen.android.dribl.provider.DribbbleContract;
 
 public class MainActivity extends FragmentActivity {
 
+	private String mTitleOverride;
 	private String[] mListItems;
 	private ListView mDrawerList;
 	private DrawerLayout mDrawerLayout;
@@ -42,6 +42,9 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.activity_main);
         // Enable home button
         getActionBar().setDisplayHomeAsUpEnabled(true);
+        
+        // Read app title
+        mTitleOverride = null;
         
         // Get views
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -67,6 +70,18 @@ public class MainActivity extends FragmentActivity {
     }
     
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+    	super.onSaveInstanceState(outState);
+    	outState.putString("title_override", mTitleOverride);
+    }
+    
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    	super.onRestoreInstanceState(savedInstanceState);
+    	mTitleOverride = savedInstanceState.getString("title_override", null);
+    }
+    
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
@@ -78,27 +93,51 @@ public class MainActivity extends FragmentActivity {
         // Set hint
         mSearchView.setQueryHint(mSearchItem.getTitle());
         // Setup listener
-        mSearchView.setOnQueryTextListener(new OnQueryTextListener() {
-			@Override
-			public boolean onQueryTextSubmit(String query) {
-				Log.d("Dribl", "Search: " + query);
-				// Usually the SearchView would start its associated intent but since
-				// this SearchView doesn't actually have its own layout we have to handle it in code
-				return true;
-			}
-			
-			@Override
-			public boolean onQueryTextChange(String newText) {
-				return false;
-			}
-		});
+        mSearchView.setOnQueryTextListener(new SearchListener());
         
         
         return super.onCreateOptionsMenu(menu);
     }
     
+    private class SearchListener implements OnQueryTextListener {
+    	
+		@Override
+		public boolean onQueryTextSubmit(String query) {
+			// Set the action bar's title
+			getActionBar().setTitle("Search: " + query);
+			
+			// Deselect navigation drawer
+	        int selectedItem = mDrawerList.getCheckedItemPosition();
+	        if (selectedItem != AdapterView.INVALID_POSITION) {
+	        	mDrawerList.setItemChecked(selectedItem, false);        	
+	        }
+			
+			// Hide search bar
+			mSearchItem.collapseActionView();
+			
+	    	// Create the new fragment that should be opened
+	    	Fragment newFragment = StreamFragment.newInstance(DribbbleContract.Image.SEARCH_URI, query);
+	    	
+	    	// Replace the fragment
+	    	FragmentManager fm = getSupportFragmentManager();
+	    	fm.beginTransaction()
+	    	  .replace(R.id.content_frame, newFragment)
+	    	  .commit();
+			
+			// Usually the SearchView would start its associated intent but since
+			// this SearchView doesn't actually have its own layout we have to handle it in code
+			return true;
+		}
+		
+		@Override
+		public boolean onQueryTextChange(String newText) {
+			return false;
+		}
+		
+	}
+    
     /**
-     * Handle search key press
+     * Handle the search key on some Android devices
      */
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
@@ -132,7 +171,7 @@ public class MainActivity extends FragmentActivity {
     		newFragment = new HelloWorldFragment();
     	}
     	
-    	// Replace the fragment    	
+    	// Use the new fragment    	
     	FragmentManager fm = getSupportFragmentManager();
     	fm.beginTransaction()
     	  .replace(R.id.content_frame, newFragment)
@@ -166,11 +205,6 @@ public class MainActivity extends FragmentActivity {
     private class DrawerItemClickListener implements OnItemClickListener {
     	@Override
     	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    		// Ignore this event if the same element is already selected
-//    		Log.d("Dribl", "" + mDrawerList.getCheckedItemPosition() + " " + position);
-//    		if (mDrawerList.getCheckedItemPosition() == position) {
-//    			return;
-//    		}
     		// Swap fragment
     		selectItem(position);
     	}

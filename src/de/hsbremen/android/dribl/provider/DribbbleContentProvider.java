@@ -4,8 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -17,6 +21,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -99,7 +106,7 @@ public class DribbbleContentProvider extends ContentProvider {
 			
 			// Re-do a search request everytime
 			if (tableName.equals("search")) {
-				if (!selection.equals("q = ?") || selectionArgs.length < 1) {
+				if (selection == null || !selection.equals("q = ?") || selectionArgs == null || selectionArgs.length < 1) {
 					throw new IllegalArgumentException("Selection is missing");
 				}
 				cursor = loadSearchAsMatrixCursor(selectionArgs[0]);
@@ -207,13 +214,19 @@ public class DribbbleContentProvider extends ContentProvider {
 	}
 	
 	/**
-	 * Search Dribbble
+	 * This method is responsible for returning data when the user does a search.
+	 * The method is implemented by parsing the HTML response from the dribbble.com
+	 * website when doing a search there, because the JSON API does not provide
+	 * search functionality
+	 * 
 	 * @return
 	 */
 	private static MatrixCursor loadSearchAsMatrixCursor(String query) {
-		Log.d("Dribl", "Searching for " + query);
-		
 		// Setup the MatrixCursor
+		// We can ignore memory leak warnings because we are
+		// catching all of our own exceptions and returning
+		// the empty MatrixCursor there
+		@SuppressWarnings("resource")
 		MatrixCursor out = new MatrixCursor(new String[] {
 			DribbbleContract.Image._ID,
 			DribbbleContract.Image.URL,
@@ -225,7 +238,81 @@ public class DribbbleContentProvider extends ContentProvider {
 			DribbbleContract.Image.IMAGE_URL
 		});
 		
-		return out;
+		try {
+			String searchUrl = "http://dribbble.com/search?utf8=%E2%9C%93&q=" + URLEncoder.encode(query, "UTF-8");
+			Log.d("Dribl", "Starting request");
+			String response = loadStringFromUrl(searchUrl);
+			Log.d("Dribl", "Starting to parse");
+			Document doc = Jsoup.parse(response, searchUrl);
+			
+			// Prepare regular expressions
+			Pattern idPattern = Pattern.compile("/shots/(\\d+)-");
+			
+			// Process each image
+			for (Element shot : doc.select(".dribbble")) {
+				Log.d("Dribl", "Processing a shot");
+				
+				// Find all necessary elements in the HTML response
+				Element linkTag = shot.select(".dribbble-link").first();
+				if (linkTag == null) {
+					throw new IOException("No link found");
+				}
+				String imageUrl;
+				Element imgTag = linkTag.select("img").first();
+				Element imgTag2 = linkTag.child(0).child(1);
+				if (imgTag == null) {
+					throw new IOException("No img tag found");
+				}
+				if (imgTag2 != null) {
+					// Found hi-res image
+					imageUrl = imgTag2.absUrl("data-src");
+				} else {
+					// No hi-res image found
+					imageUrl = imgTag.absUrl("src");
+				}
+				Element authorLink = shot.nextElementSibling().select(".url").first();
+				if (authorLink == null) {
+					throw new IOException("No author found");
+				}
+				// Find id
+				Matcher m = idPattern.matcher(linkTag.attr("href"));
+				if (!m.find()) {
+					throw new IOException("No ID found");
+				}
+				long id = Long.parseLong(m.group(1));
+				
+				// Add a new row to the MatrixCursor. Now it gets serious.
+				RowBuilder row = out.newRow();
+				
+				// ID, URL, Title
+				row.add(id);
+				row.add(linkTag.absUrl("href"));
+				row.add(imgTag.attr("alt"));
+				
+				row.add(0); // likes_count
+				row.add(0); // comments_count
+				row.add(0); // rebounds_count
+				
+				// Author
+				row.add(authorLink.text());
+				
+				// Image URL
+				row.add(imageUrl);
+			}
+
+			return out;
+		} catch (UnsupportedEncodingException e) {
+			out.close();
+			throw new RuntimeException("This device doesn't support UTF-8. How curious.");
+		} catch (IOException e) {
+			// Error while parsing the response. Try to fail gracefully.
+			Log.e("Dribl", "Parser error: " + e.getMessage());
+			return out;
+		} catch (NullPointerException e) {
+			// Error while parsing the response. Try to fail gracefully.
+			Log.e("Dribl", e.getClass().getSimpleName() + ": " + e.getMessage());
+			return out;
+		}
 	}
 	
 	/**
