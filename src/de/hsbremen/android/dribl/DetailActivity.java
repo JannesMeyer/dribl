@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,6 +34,10 @@ public class DetailActivity extends Activity {
 	private ImageView mImageView;
 	private TextView mTitleText;
 	private TextView mAuthorText;	
+	
+	private String likesCount;
+	private String reboundCount;
+	private String commentCount;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +81,11 @@ public class DetailActivity extends Activity {
 			final String imageUrl = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.IMAGE_URL));
 			final String title = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.TITLE));
 			final String author = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.AUTHOR));
-			final int likesCount = cursor.getInt(cursor.getColumnIndex(DribbbleContract.Image.LIKES_COUNT));
+			
+			likesCount = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.LIKES_COUNT));
+			reboundCount = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.REBOUNDS_COUNT));
+			commentCount = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.COMMENTS_COUNT));
+			
 			
 			// Load image
 			new ImageHelper(this, mImageLoader)
@@ -88,12 +97,19 @@ public class DetailActivity extends Activity {
 			mTitleText.setText(title);
 			mAuthorText.setText(author);
 			
-			// Set stats
-			texts[0] = likesCount + " " + texts[0];
-			for (int i = 1; i < texts.length; ++i) {
-				texts[i] = "- " + texts[i]; 
-			}
 		}
+		
+		// Prepare info content
+		String[] stats = {
+				likesCount, 
+				reboundCount, 
+				commentCount
+		};
+		
+		for (int i = 0; i < texts.length; ++i) {
+			texts[i] = stats[i] + " " + texts[i]; 
+		}
+
 		
 		// Create the listadapter
 		mListAdapter = new IconTextArrayAdapter(this, icons, texts, R.layout.row_icontext) {

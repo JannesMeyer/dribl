@@ -15,14 +15,14 @@
         <item>@string/action_settings</item>
     </string-array>
     
-    <string name="detail_views">Views</string>
     <string name="detail_likes">Likes</string>
-    <string name="detail_buckets">Buckets</string>
+    <string name="detail_rebounds">Rebounds</string>
+    <string name="detail_comments">Comments</string>
     
     <string-array name="detail_list">
         <item>@string/detail_likes</item>
-        <item>@string/detail_buckets</item>
-        <item>@string/detail_views</item>
+        <item>@string/detail_rebounds</item>
+        <item>@string/detail_comments</item>
     </string-array>
 
     <string name="title_activity_side_menu">SideMenu</string>
@@ -32,7 +32,7 @@
     
     <string name="contentdescription_image">Image loaded from the web</string>
     
-    <string name="detail_title">Title</string>
+    <string name="detail_title">Very long Title over two lines</string>
     <string name="detail_by">by</string>
     <string name="detail_author">Author</string> 
 
