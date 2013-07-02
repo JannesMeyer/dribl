@@ -53,6 +53,14 @@ public class DetailActivity extends Activity {
 		// Setup action bar
 		mActionBar.setDisplayHomeAsUpEnabled(true);
 		
+		// Get stat resources
+		String[] texts = getResources().getStringArray(R.array.detail_list);
+		int[] icons = {
+				R.drawable.icon_likes,
+				R.drawable.icon_buckets,
+				R.drawable.icon_views
+		};
+		
 		// Get intent data
 		Intent intent = getIntent();
 		Uri baseUri = intent.getParcelableExtra(EXTRA_BASE_URI);
@@ -83,31 +91,25 @@ public class DetailActivity extends Activity {
 			new ImageHelper(this, mImageLoader)
 				.setLoadingResource(R.drawable.placeholder)
 				.load(mImageView, imageUrl);
+			
 			// Set text
 			mActionBar.setTitle(title);
 			mTitleText.setText(title);
 			mAuthorText.setText(author);
 			
-			Log.d("***API INFO***", "comment count: " + commentCount);
-			Log.d("***API INFO***", "likes count: " + likesCount);
 		}
 		
 		// Prepare info content
-		String[] texts = getResources().getStringArray(R.array.detail_list);
-		String[] counts = {
+		String[] stats = {
 				likesCount, 
 				reboundCount, 
 				commentCount
 		};
 		
 		for (int i = 0; i < texts.length; ++i) {
-			texts[i] = counts[i] + " " + texts[i]; 
+			texts[i] = stats[i] + " " + texts[i]; 
 		}
-		int[] icons = {
-				R.drawable.icon_likes,
-				R.drawable.icon_buckets,
-				R.drawable.icon_views
-		};
+
 		
 		// Create the listadapter
 		mListAdapter = new IconTextArrayAdapter(this, icons, texts, R.layout.row_icontext) {
