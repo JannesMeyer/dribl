@@ -33,7 +33,6 @@ public class DetailActivity extends Activity {
 	private ImageView mImageView;
 	private TextView mTitleText;
 	private TextView mAuthorText;	
-	private TextView mLikesCount;	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,10 +44,17 @@ public class DetailActivity extends Activity {
 		mImageView = (ImageView) findViewById(R.id.image);
 		mTitleText = (TextView) findViewById(R.id.title);
 		mAuthorText = (TextView) findViewById(R.id.author);
-		mLikesCount = (TextView) findViewById(R.id.label);
 		
 		// Setup action bar
 		mActionBar.setDisplayHomeAsUpEnabled(true);
+		
+		// Get stat resources
+		String[] texts = getResources().getStringArray(R.array.detail_list);
+		int[] icons = {
+				R.drawable.icon_likes,
+				R.drawable.icon_buckets,
+				R.drawable.icon_views
+		};
 		
 		// Get intent data
 		Intent intent = getIntent();
@@ -70,28 +76,24 @@ public class DetailActivity extends Activity {
 			final String imageUrl = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.IMAGE_URL));
 			final String title = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.TITLE));
 			final String author = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.AUTHOR));
-			
+			final int likesCount = cursor.getInt(cursor.getColumnIndex(DribbbleContract.Image.LIKES_COUNT));
 			
 			// Load image
 			new ImageHelper(this, mImageLoader)
 				.setLoadingResource(R.drawable.placeholder)
 				.load(mImageView, imageUrl);
+			
 			// Set text
 			mActionBar.setTitle(title);
 			mTitleText.setText(title);
 			mAuthorText.setText(author);
+			
+			// Set stats
+			texts[0] = likesCount + " " + texts[0];
+			for (int i = 1; i < texts.length; ++i) {
+				texts[i] = "- " + texts[i]; 
+			}
 		}
-		
-		// Prepare info content
-		String[] texts = getResources().getStringArray(R.array.detail_list);
-		for (int i = 0; i < texts.length; ++i) {
-			texts[i] = "1337 " + texts[i]; 
-		}
-		int[] icons = {
-				R.drawable.icon_likes,
-				R.drawable.icon_buckets,
-				R.drawable.icon_views
-		};
 		
 		// Create the listadapter
 		mListAdapter = new IconTextArrayAdapter(this, icons, texts, R.layout.row_icontext) {
