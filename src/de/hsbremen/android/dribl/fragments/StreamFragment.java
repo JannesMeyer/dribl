@@ -10,7 +10,6 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,8 +35,8 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>,
 		
 		// Let this fragment take over the ActionBar title
 		// whenever we're attaching to an Activity 
-		String title = getArguments().getString("title");
-		activity.getActionBar().setTitle(title);
+//		String title = getArguments().getString("title");
+//		activity.getActionBar().setTitle(title);
 	}
 	
 	@Override
@@ -51,18 +50,21 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>,
 		super.onCreate(savedInstanceState);
 		
 		// Retain this fragment between orientation changes
-//		setRetainInstance(true);
-		
-		// Get the fragment's initialization arguments
-		Bundle args = getArguments();
-		mContentUri = args.getParcelable(ARGUMENT_CONTENT_URI);
-		
-		Log.d("Dribl", "New StreamFragment for " + mContentUri);
+		setRetainInstance(true);
 		
 		// Create cursor adapter (without a cursor yet)
 		// Attention! This activity might not exist for the whole lifetime of the adapter,
 		// so you better don't save a reference to it in the adapter
 		mAdapter = new ImageListCursorAdapter(mActivity, null);
+		
+		// Get the fragment's initialization arguments
+		Bundle args = getArguments();
+		mContentUri = args.getParcelable(ARGUMENT_CONTENT_URI);
+	}
+	
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
 		
 		// Init loader and set 'this' as LoaderCallback
 		getLoaderManager().initLoader(0, null, this);
@@ -73,7 +75,7 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>,
 		// These IDs should be global to the application
 		if (id == 0) {
 			// Create a loader for the requested image list
-			return new CursorLoader(getActivity().getApplicationContext(), mContentUri, null, null, null, null);
+			return new CursorLoader(mActivity, mContentUri, null, null, null, null);
 		} else {
 			throw new IllegalArgumentException("Unknown loader ID");
 		}
