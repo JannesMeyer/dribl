@@ -4,6 +4,9 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:drawableStart="@null"
+    android:paddingTop="@dimen/row_icontext_spacing"
+    android:paddingBottom="@dimen/row_icontext_spacing"
+    android:fontFamily="sans-serif-light"
     android:textSize="@dimen/row_icontext_textsize" >
 
 </TextView>

@@ -1,0 +1,5 @@
+<de.hsbremen.android.dribl.views.StretchableImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/image"
+    android:contentDescription="@string/contentdescription_image" >
+
+</de.hsbremen.android.dribl.views.StretchableImageView>

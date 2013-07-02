@@ -4,6 +4,7 @@
     <string name="app_name">Dribl</string>
     <string name="action_search">Search Dribbble</string>
     <string name="action_settings">Settings</string>
+    <string name="action_addToCollection">Add to Collection</string>
     <string name="hello_world">Hello world!</string>
     <string name="open_drawer">Open Drawer Navigation</string>
     <string name="close_drawer">Close Drawer Navigation</string>

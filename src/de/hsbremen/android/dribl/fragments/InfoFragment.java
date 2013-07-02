@@ -21,7 +21,7 @@ public class InfoFragment extends Fragment {
 		// Retain this fragment between orientation changes
 		setRetainInstance(true);
 		
-		// Preprare info content
+		// Prepare info content
 		String[] texts = getResources().getStringArray(R.array.detail_list);
 		for (int i = 0; i < texts.length; ++i) {
 			texts[i] = "1337 " + texts[i]; 
@@ -44,7 +44,7 @@ public class InfoFragment extends Fragment {
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_imageinfo, container, false);
+		View view = inflater.inflate(R.layout.component_imageinfo, container, false);
 
 		ListView detailList = (ListView) view.findViewById(R.id.detailList);
 		detailList.setAdapter(mListAdapter);

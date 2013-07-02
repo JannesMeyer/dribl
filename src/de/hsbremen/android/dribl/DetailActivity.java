@@ -8,13 +8,18 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.webimageloader.ImageLoader;
 import com.webimageloader.ext.ImageHelper;
 
+import de.hsbremen.android.dribl.adapter.IconTextArrayAdapter;
 import de.hsbremen.android.dribl.provider.DribbbleContract;
 
 public class DetailActivity extends Activity {
@@ -22,6 +27,7 @@ public class DetailActivity extends Activity {
 	public static final String EXTRA_BASE_URI = "content_uri";
 	public static final String EXTRA_ID = "id";
 
+	private ListAdapter mListAdapter;
 	private ActionBar mActionBar;
 	private ImageLoader mImageLoader;
 	private ImageView mImageView;
@@ -41,6 +47,14 @@ public class DetailActivity extends Activity {
 		
 		// Setup action bar
 		mActionBar.setDisplayHomeAsUpEnabled(true);
+		
+		// Get stat resources
+		String[] texts = getResources().getStringArray(R.array.detail_list);
+		int[] icons = {
+				R.drawable.icon_likes,
+				R.drawable.icon_buckets,
+				R.drawable.icon_views
+		};
 		
 		// Get intent data
 		Intent intent = getIntent();
@@ -62,16 +76,37 @@ public class DetailActivity extends Activity {
 			final String imageUrl = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.IMAGE_URL));
 			final String title = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.TITLE));
 			final String author = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.AUTHOR));
+			final int likesCount = cursor.getInt(cursor.getColumnIndex(DribbbleContract.Image.LIKES_COUNT));
 			
 			// Load image
 			new ImageHelper(this, mImageLoader)
 				.setLoadingResource(R.drawable.placeholder)
 				.load(mImageView, imageUrl);
+			
 			// Set text
 			mActionBar.setTitle(title);
 			mTitleText.setText(title);
 			mAuthorText.setText(author);
+			
+			// Set stats
+			texts[0] = likesCount + " " + texts[0];
+			for (int i = 1; i < texts.length; ++i) {
+				texts[i] = "- " + texts[i]; 
+			}
 		}
+		
+		// Create the listadapter
+		mListAdapter = new IconTextArrayAdapter(this, icons, texts, R.layout.row_icontext) {
+			@Override
+			public boolean isEnabled(int position) {
+				// Make all items in this list non-clickable
+				return false;
+			}
+		};
+		
+		ListView detailList = (ListView) findViewById(R.id.detailList);
+		detailList.setAdapter(mListAdapter);
+		
 	}
 	
 	@Override
@@ -83,6 +118,14 @@ public class DetailActivity extends Activity {
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.detail, menu);
+		
+		return true;
 	}
 
 }
