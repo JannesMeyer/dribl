@@ -10,6 +10,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,11 +51,13 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>,
 		super.onCreate(savedInstanceState);
 		
 		// Retain this fragment between orientation changes
-		setRetainInstance(true);
+//		setRetainInstance(true);
 		
 		// Get the fragment's initialization arguments
 		Bundle args = getArguments();
 		mContentUri = args.getParcelable(ARGUMENT_CONTENT_URI);
+		
+		Log.d("Dribl", "New StreamFragment for " + mContentUri);
 		
 		// Create cursor adapter (without a cursor yet)
 		// Attention! This activity might not exist for the whole lifetime of the adapter,
@@ -70,7 +73,7 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>,
 		// These IDs should be global to the application
 		if (id == 0) {
 			// Create a loader for the requested image list
-			return new CursorLoader(mActivity, mContentUri, null, null, null, null);
+			return new CursorLoader(getActivity().getApplicationContext(), mContentUri, null, null, null, null);
 		} else {
 			throw new IllegalArgumentException("Unknown loader ID");
 		}

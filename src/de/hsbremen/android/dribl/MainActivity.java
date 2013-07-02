@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import de.hsbremen.android.dribl.fragments.HelloWorldFragment;
 import de.hsbremen.android.dribl.fragments.StreamFragment;
+import de.hsbremen.android.dribl.fragments.StreamPagerFragment;
 import de.hsbremen.android.dribl.provider.DribbbleContract;
 
 
@@ -97,6 +98,9 @@ public class MainActivity extends FragmentActivity {
 	    	case 2:
 	    		newFragment = new StreamFragment();
 	    		args.putParcelable(StreamFragment.ARGUMENT_CONTENT_URI, DribbbleContract.Image.STREAM_POPULAR_URI);
+	    		break;
+	    	case 5:
+	    		newFragment = new StreamPagerFragment();
 	    		break;
 	    	default:
 	    		newFragment = new HelloWorldFragment();

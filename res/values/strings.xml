@@ -13,6 +13,7 @@
         <item>Debuts</item>
         <item>My Collection</item>
         <item>@string/action_settings</item>
+        <item>Stream</item>
     </string-array>
     
     <string name="detail_views">Views</string>
@@ -33,7 +34,7 @@
     <string name="contentdescription_image">Image loaded from the web</string>
     
     <string name="detail_title">Title</string>
-    <string name="detail_by">by </string>
+    <string name="detail_by">by</string>
     <string name="detail_author">Author</string> 
 
 </resources>
