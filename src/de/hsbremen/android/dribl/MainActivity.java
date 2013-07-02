@@ -27,7 +27,7 @@ import de.hsbremen.android.dribl.provider.DribbbleContract;
 
 public class MainActivity extends FragmentActivity {
 
-	private String mTitleOverride;
+	private String mActionBarTitle;
 	private String[] mListItems;
 	private ListView mDrawerList;
 	private DrawerLayout mDrawerLayout;
@@ -44,7 +44,7 @@ public class MainActivity extends FragmentActivity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
         
         // Read app title
-        mTitleOverride = null;
+        mActionBarTitle = null;
         
         // Get views
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -62,23 +62,31 @@ public class MainActivity extends FragmentActivity {
         mDrawerList.setAdapter(adapter);
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         
-        // Set inital fragment
+        
         if (savedInstanceState == null) {
+        	// Set inital fragment
             selectItem(0);
             mDrawerList.setItemChecked(0, true);
+        } else {
+        	// Restore state
+        	setActionBarTitle(savedInstanceState.getString("title_override", null));
         }
     }
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
     	super.onSaveInstanceState(outState);
-    	outState.putString("title_override", mTitleOverride);
+    	outState.putString("title_override", mActionBarTitle);
     }
     
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-    	super.onRestoreInstanceState(savedInstanceState);
-    	mTitleOverride = savedInstanceState.getString("title_override", null);
+    private void setActionBarTitle(String title) {
+    	mActionBarTitle = title;
+    	if (title == null) {
+    		// Set default ActionBar title
+    		getActionBar().setTitle(R.string.app_name);
+    	} else {
+    		getActionBar().setTitle(title);
+    	}
     }
     
     @Override
@@ -95,7 +103,6 @@ public class MainActivity extends FragmentActivity {
         // Setup listener
         mSearchView.setOnQueryTextListener(new SearchListener());
         
-        
         return super.onCreateOptionsMenu(menu);
     }
     
@@ -104,7 +111,7 @@ public class MainActivity extends FragmentActivity {
 		@Override
 		public boolean onQueryTextSubmit(String query) {
 			// Set the action bar's title
-			getActionBar().setTitle("Search: " + query);
+			setActionBarTitle("Search: " + query);
 			
 			// Deselect navigation drawer
 	        int selectedItem = mDrawerList.getCheckedItemPosition();
@@ -158,14 +165,14 @@ public class MainActivity extends FragmentActivity {
     	// Close the drawer
     	mDrawerLayout.closeDrawer(mDrawerList);
     	
+    	// Set the ActionBar title
+    	setActionBarTitle(null);
+    	
     	// Create the new fragment that should be opened
     	Fragment newFragment;
     	if (position == 0) {
     		// Stream
     		newFragment = new StreamPagerFragment();
-    	} else if (position == 3) {
-    		// Search
-    		newFragment = StreamFragment.newInstance(DribbbleContract.Image.SEARCH_URI, "Test");
     	} else {
     		// All else
     		newFragment = new HelloWorldFragment();

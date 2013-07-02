@@ -12,7 +12,6 @@
         <item>Streams</item>
         <item>My Collection</item>
         <item>@string/action_settings</item>
-        <item>Search test</item>
     </string-array>
     
     <string name="detail_views">Views</string>
