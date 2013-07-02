@@ -94,13 +94,24 @@ public class DribbbleContentProvider extends ContentProvider {
 		switch (sURIMatcher.match(uri)) {
 		case STREAM:
 		{
-			String listName = uri.getPathSegments().get(0); 
-			Cursor cursor = responseCache.get(listName);
+			Cursor cursor;
+			String tableName = uri.getPathSegments().get(0);
 			
-			// Cache miss
-			if (cursor == null) {
-				cursor = loadStreamAsMatrixCursor("http://api.dribbble.com/shots/" + listName);
-				addResponseToMemoryCache(listName, cursor);
+			// Re-do a search request everytime
+			if (tableName.equals("search")) {
+				if (!selection.equals("q = ?") || selectionArgs.length < 1) {
+					throw new IllegalArgumentException("Selection is missing");
+				}
+				cursor = loadSearchAsMatrixCursor(selectionArgs[0]);
+				addResponseToMemoryCache(tableName, cursor);	
+			} else {
+				// Ask the cache for this table
+				cursor = responseCache.get(tableName);
+				// Cache miss
+				if (cursor == null) {
+					cursor = loadStreamAsMatrixCursor("http://api.dribbble.com/shots/" + tableName);
+					addResponseToMemoryCache(tableName, cursor);
+				}
 			}
 			
 			return cursor;
@@ -152,15 +163,15 @@ public class DribbbleContentProvider extends ContentProvider {
 		
 		// Setup the MatrixCursor
 		MatrixCursor out = new MatrixCursor(new String[] {
-				DribbbleContract.Image._ID,
-				DribbbleContract.Image.URL,
-				DribbbleContract.Image.TITLE,
-				DribbbleContract.Image.LIKES_COUNT,
-				DribbbleContract.Image.COMMENTS_COUNT,
-				DribbbleContract.Image.REBOUNDS_COUNT,
-				DribbbleContract.Image.AUTHOR,
-				DribbbleContract.Image.IMAGE_URL
-			});
+			DribbbleContract.Image._ID,
+			DribbbleContract.Image.URL,
+			DribbbleContract.Image.TITLE,
+			DribbbleContract.Image.LIKES_COUNT,
+			DribbbleContract.Image.COMMENTS_COUNT,
+			DribbbleContract.Image.REBOUNDS_COUNT,
+			DribbbleContract.Image.AUTHOR,
+			DribbbleContract.Image.IMAGE_URL
+		});
 		
 		// Parse the JSON response
 		try {
@@ -195,6 +206,34 @@ public class DribbbleContentProvider extends ContentProvider {
 		}
 	}
 	
+	/**
+	 * Search Dribbble
+	 * @return
+	 */
+	private static MatrixCursor loadSearchAsMatrixCursor(String query) {
+		Log.d("Dribl", "Searching for " + query);
+		
+		// Setup the MatrixCursor
+		MatrixCursor out = new MatrixCursor(new String[] {
+			DribbbleContract.Image._ID,
+			DribbbleContract.Image.URL,
+			DribbbleContract.Image.TITLE,
+			DribbbleContract.Image.LIKES_COUNT,
+			DribbbleContract.Image.COMMENTS_COUNT,
+			DribbbleContract.Image.REBOUNDS_COUNT,
+			DribbbleContract.Image.AUTHOR,
+			DribbbleContract.Image.IMAGE_URL
+		});
+		
+		return out;
+	}
+	
+	/**
+	 * Downloads a URL as a String
+	 * 
+	 * @param url
+	 * @return
+	 */
 	private static String loadStringFromUrl(String url) {
 		// Load JSON data (using Apache's http client library)
 		StringBuilder builder = new StringBuilder();

@@ -18,7 +18,7 @@ public final class DribbbleContract {
 		public static final Uri STREAM_POPULAR_URI = Uri.withAppendedPath(AUTHORITY_URI, "popular");
 		public static final Uri STREAM_EVERYONE_URI = Uri.withAppendedPath(AUTHORITY_URI, "everyone");
 		public static final Uri STREAM_DEBUTS_URI = Uri.withAppendedPath(AUTHORITY_URI, "debuts");
-		public static final Uri STREAM_SEARCH_URI = Uri.withAppendedPath(AUTHORITY_URI, "search");
+		public static final Uri SEARCH_URI = Uri.withAppendedPath(AUTHORITY_URI, "search");
 		
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/image";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/image";

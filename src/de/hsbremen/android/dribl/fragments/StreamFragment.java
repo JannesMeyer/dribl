@@ -1,6 +1,5 @@
 package de.hsbremen.android.dribl.fragments;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -23,26 +22,27 @@ import de.hsbremen.android.dribl.adapter.ImageListCursorAdapter;
 public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>, OnItemClickListener {
 	
 	public static final String ARGUMENT_CONTENT_URI = "content_uri";
+	public static final String ARGUMENT_QUERY = "query";
 	
-	Activity mActivity;
 	CursorAdapter mAdapter;
 	Uri mContentUri;
-	
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		mActivity = activity;
-		
-		// Let this fragment take over the ActionBar title
-		// whenever we're attaching to an Activity 
-//		String title = getArguments().getString("title");
-//		activity.getActionBar().setTitle(title);
+	String mSearchQuery;
+
+	public static Fragment newInstance(Uri contentUri) {
+		return newInstance(contentUri, null);
 	}
 	
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		mActivity = null;
+	public static Fragment newInstance(Uri contentUri, String query) {
+		// Create arguments
+		Bundle args = new Bundle();
+	    args.putParcelable(ARGUMENT_CONTENT_URI, contentUri);
+	    args.putString(ARGUMENT_QUERY, query);
+		
+	    // Create fragment
+		Fragment fragment = new StreamFragment();
+	    fragment.setArguments(args);
+	    
+	    return fragment;
 	}
 	
 	@Override
@@ -55,11 +55,12 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>,
 		// Create cursor adapter (without a cursor yet)
 		// Attention! This activity might not exist for the whole lifetime of the adapter,
 		// so you better don't save a reference to it in the adapter
-		mAdapter = new ImageListCursorAdapter(mActivity, null);
+		mAdapter = new ImageListCursorAdapter(getActivity(), null);
 		
 		// Get the fragment's initialization arguments
 		Bundle args = getArguments();
 		mContentUri = args.getParcelable(ARGUMENT_CONTENT_URI);
+		mSearchQuery = args.getString(ARGUMENT_QUERY);
 	}
 	
 	@Override
@@ -75,7 +76,7 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>,
 		// These IDs should be global to the application
 		if (id == 0) {
 			// Create a loader for the requested image list
-			return new CursorLoader(mActivity, mContentUri, null, null, null, null);
+			return new CursorLoader(getActivity(), mContentUri, null, null, null, null);
 		} else {
 			throw new IllegalArgumentException("Unknown loader ID");
 		}
@@ -109,7 +110,7 @@ public class StreamFragment extends Fragment implements LoaderCallbacks<Cursor>,
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		// Open the detail view for this item
-		Intent intent = new Intent(mActivity, DetailActivity.class);
+		Intent intent = new Intent(getActivity(), DetailActivity.class);
 		intent.putExtra(DetailActivity.EXTRA_BASE_URI, mContentUri);
 		intent.putExtra(DetailActivity.EXTRA_ID, id);
     	startActivity(intent);

@@ -80,16 +80,7 @@ public class StreamPagerFragment extends Fragment {
 
         @Override
         public Fragment getItem(int position) {
-        	// Arguments
-        	Bundle args = new Bundle();
-        	args.putString("title", "Test");
-    		args.putParcelable(StreamFragment.ARGUMENT_CONTENT_URI, sContentUris[position]);
-    		
-        	// New fragment with arguments
-        	Fragment fragment = new StreamFragment();
-    		fragment.setArguments(args);
-    		
-    		return fragment;
+    		return StreamFragment.newInstance(sContentUris[position]);
         }
 
         @Override
