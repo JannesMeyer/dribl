@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,7 +34,10 @@ public class DetailActivity extends Activity {
 	private ImageView mImageView;
 	private TextView mTitleText;
 	private TextView mAuthorText;	
-	private TextView mLikesCount;	
+	
+	private String likesCount;
+	private String reboundCount;
+	private String commentCount;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +49,6 @@ public class DetailActivity extends Activity {
 		mImageView = (ImageView) findViewById(R.id.image);
 		mTitleText = (TextView) findViewById(R.id.title);
 		mAuthorText = (TextView) findViewById(R.id.author);
-		mLikesCount = (TextView) findViewById(R.id.label);
 		
 		// Setup action bar
 		mActionBar.setDisplayHomeAsUpEnabled(true);
@@ -71,6 +74,10 @@ public class DetailActivity extends Activity {
 			final String title = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.TITLE));
 			final String author = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.AUTHOR));
 			
+			likesCount = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.LIKES_COUNT));
+			reboundCount = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.REBOUNDS_COUNT));
+			commentCount = cursor.getString(cursor.getColumnIndex(DribbbleContract.Image.COMMENTS_COUNT));
+			
 			
 			// Load image
 			new ImageHelper(this, mImageLoader)
@@ -80,12 +87,21 @@ public class DetailActivity extends Activity {
 			mActionBar.setTitle(title);
 			mTitleText.setText(title);
 			mAuthorText.setText(author);
+			
+			Log.d("***API INFO***", "comment count: " + commentCount);
+			Log.d("***API INFO***", "likes count: " + likesCount);
 		}
 		
 		// Prepare info content
 		String[] texts = getResources().getStringArray(R.array.detail_list);
+		String[] counts = {
+				likesCount, 
+				reboundCount, 
+				commentCount
+		};
+		
 		for (int i = 0; i < texts.length; ++i) {
-			texts[i] = "1337 " + texts[i]; 
+			texts[i] = counts[i] + " " + texts[i]; 
 		}
 		int[] icons = {
 				R.drawable.icon_likes,

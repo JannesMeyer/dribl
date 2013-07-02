@@ -7,6 +7,7 @@
     android:textSize="21sp"
     android:gravity="center_vertical"
     android:background="?android:attr/activatedBackgroundIndicator"
+    android:textColorHighlight="@android:color/white"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:paddingLeft="@dimen/drawer_list_padding"
     android:paddingRight="@dimen/drawer_list_padding">
