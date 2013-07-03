@@ -113,6 +113,7 @@ public class DetailActivity extends Activity {
 			// Load image
 			new ImageHelper(this, mImageLoader)
 				.setLoadingResource(R.drawable.placeholder)
+				.setFadeIn(true)
 				.load(mImageView, mShot.imageUrl);
 			
 			// Set text
