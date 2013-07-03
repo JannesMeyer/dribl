@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -46,20 +45,21 @@ public class StreamPagerFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_stream_viewpager, container, false);
-                
-        mPagerAdapter = new ScreenSlidePagerAdapter(getFragmentManager());
-        
+
         sTitles = getResources().getStringArray(R.array.stream_titles);
-        
+                
+        // set pager adapter
+        mPagerAdapter = new ScreenSlidePagerAdapter(getFragmentManager());
+                
         mPager = (ViewPager) view.findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
         
+        // connect tabs and pager
         mTabs = (PagerSlidingTabStrip) view.findViewById(R.id.tabs);
         mTabs.setViewPager(mPager);
       
         // Style
-        mTabs.setIndicatorColor(getResources().getColor(R.color.tabs_indicator_color));
-        
+        mTabs.setIndicatorColor(getResources().getColor(R.color.tabs_indicator_color));    
         
         return view;
 	}
