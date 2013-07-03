@@ -59,7 +59,8 @@ public class StreamPagerFragment extends Fragment {
         mTabs.setViewPager(mPager);
       
         // Style
-        mTabs.setIndicatorColor(getResources().getColor(R.color.tabs_indicator_color));    
+        mTabs.setIndicatorColor(getResources().getColor(R.color.tabs_indicator_color));
+        mTabs.setShouldExpand(true);
         
         return view;
 	}
