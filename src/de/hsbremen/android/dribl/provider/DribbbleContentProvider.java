@@ -66,23 +66,9 @@ public class DribbbleContentProvider extends ContentProvider {
 	public boolean onCreate() {
 		Log.d("Dribl", "New DribbbleContentProvider instance");
 		
-		mCollectionDBHelper = new CollectionDBHelper(getContext());
+		mCollectionDBHelper = new CollectionDBHelper(getContext().getApplicationContext());
 		
 		return true;
-	}
-	
-	/**
-	 * This method accesses the response cache in a thread-safe way
-	 *  
-	 * @param key
-	 * @param response
-	 */
-	public void addResponseToMemoryCache(String key, Cursor response) {
-		synchronized(responseCache) {
-			if (responseCache.get(key) == null) {
-	            responseCache.put(key, response);
-	        }			
-		}
 	}
 	
 	/**
@@ -125,6 +111,7 @@ public class DribbbleContentProvider extends ContentProvider {
 		{
 			// Get all items in the collection
 			Cursor cursor = mCollectionDBHelper.getCollection();
+			cursor.setNotificationUri(getContext().getContentResolver(), uri);
 			// The key for the cache needs to be the correct path segment of the URI
 			String key = uri.getPathSegments().get(0);
 			addResponseToMemoryCache(key, cursor);
@@ -158,7 +145,7 @@ public class DribbbleContentProvider extends ContentProvider {
 			return cursor;
 		}
 		case COLLECTION_ID:
-			// This is a special case for testing existance.
+			// This is a special case for testing existence.
 			// FOR NORMAL DATA RETRIEVAL FALL THROUGH TO THE NEXT CASE
 			if (projection != null && projection.length > 0 && projection[0].equals("1")) {
 				long id = Long.parseLong(uri.getLastPathSegment());
@@ -169,6 +156,8 @@ public class DribbbleContentProvider extends ContentProvider {
 		case SEARCH_ID:
 		case STREAM_ID:
 		{
+			Log.d("Dribl", "Data request for: " + uri.toString());
+			
 			long id = Long.parseLong(uri.getLastPathSegment());
 			String listName = uri.getPathSegments().get(0);
 			Cursor cursor = responseCache.get(listName);
@@ -196,6 +185,62 @@ public class DribbbleContentProvider extends ContentProvider {
 		}
 	}
 	
+	@Override
+	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Uri insert(Uri uri, ContentValues values) {
+		switch (sURIMatcher.match(uri)) {
+		case COLLECTION_ID:
+			long resultId = mCollectionDBHelper.addToCollection(values);
+			
+			if (resultId == -1) {
+				// Failure
+				return null;
+			} else {
+				// Success
+				return uri;				
+			}
+		default:
+			throw new UnsupportedOperationException();		
+		}
+	}
+	
+	@Override
+	public int delete(Uri uri, String selection, String[] selectionArgs) {
+		switch (sURIMatcher.match(uri)) {
+		case COLLECTION_ID:
+			// Get the id that's specified in the URI
+			long id = Long.parseLong(uri.getLastPathSegment());
+			
+			// Do the deletion and return the number of rows affected
+			int rowsAffected = mCollectionDBHelper.removeFromCollection(id);
+			if (rowsAffected > 0) {
+				getContext().getContentResolver().notifyChange(uri, null, false);
+			}
+			return rowsAffected;
+			
+		default:
+			throw new UnsupportedOperationException();		
+		}
+	}
+	
+	/**
+	 * This method accesses the response cache in a thread-safe way
+	 *  
+	 * @param key
+	 * @param response
+	 */
+	private void addResponseToMemoryCache(String key, Cursor response) {
+		synchronized(responseCache) {
+			if (responseCache.get(key) == null) {
+	            responseCache.put(key, response);
+	        }			
+		}
+	}
+
 	/**
 	 * Downloads data from the Dribbble api and parses the JSON response into a MatrixCursor of shots.
 	 * An example of the response structure can be found here:
@@ -395,44 +440,6 @@ public class DribbbleContentProvider extends ContentProvider {
 		}
 		
 		return builder.toString();
-	}
-	
-	@Override
-	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Uri insert(Uri uri, ContentValues values) {
-		switch (sURIMatcher.match(uri)) {
-		case COLLECTION_ID:
-			long resultId = mCollectionDBHelper.addToCollection(values);
-			
-			if (resultId == -1) {
-				// Failure
-				return null;
-			} else {
-				// Success
-				return uri;				
-			}
-		default:
-			throw new UnsupportedOperationException();		
-		}
-	}
-	
-	@Override
-	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		switch (sURIMatcher.match(uri)) {
-		case COLLECTION_ID:
-			// Get the id that's specified in the URI
-			long id = Long.parseLong(uri.getLastPathSegment());
-			
-			// Do the deletion and return the number of rows affected
-			return mCollectionDBHelper.removeFromCollection(id);
-			
-		default:
-			throw new UnsupportedOperationException();		
-		}
 	}
 	
 }
