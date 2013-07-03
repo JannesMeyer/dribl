@@ -11,6 +11,9 @@ import android.util.Log;
  * This is a class that allows the user to store specific images into a collection
  * so that the user can look at those pictures again later. 
  * 
+ * This class has default visibility which means it can not be used outside
+ * of this package. It is intended only to be used by the ContentProvider.
+ * 
  * @author jannes
  */
 class CollectionDBHelper extends SQLiteOpenHelper {

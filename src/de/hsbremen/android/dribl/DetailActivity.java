@@ -125,8 +125,8 @@ public class DetailActivity extends Activity {
 			
 			// Prepare stats
 			texts[0] = mShot.likesCount + " " + texts[0];
-			texts[0] = mShot.reboundsCount + " " + texts[0];
-			texts[0] = mShot.commentsCount + " " + texts[0];
+			texts[1] = mShot.reboundsCount + " " + texts[1];
+			texts[2] = mShot.commentsCount + " " + texts[2];
 			
 			// Create the ListAdapter
 			mListAdapter = new IconTextArrayAdapter(this, icons, texts, R.layout.row_icontext) {
