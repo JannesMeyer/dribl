@@ -27,10 +27,13 @@ import org.jsoup.nodes.Element;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MatrixCursor.RowBuilder;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.util.Log;
 
@@ -39,19 +42,35 @@ public class DribbbleContentProvider extends ContentProvider {
 	private static final int STREAM = 1;
 	private static final int STREAM_ID = 2;
 	
-	// We need a Hashtable instead of a HashMap to be thread-safe
-	private Map<String, Cursor> responseCache = new Hashtable<String, Cursor>();
+	private static final int SEARCH = 3;
+	private static final int SEARCH_ID = 4;
+	
+	private static final int COLLECTION = 5;
+	private static final int COLLECTION_ID = 6;
 	
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	
 	static {
+        sURIMatcher.addURI(DribbbleContract.AUTHORITY, "search", SEARCH);
+        sURIMatcher.addURI(DribbbleContract.AUTHORITY, "search/#", SEARCH_ID);
+        sURIMatcher.addURI(DribbbleContract.AUTHORITY, "collection", COLLECTION);
+        sURIMatcher.addURI(DribbbleContract.AUTHORITY, "collection/#", COLLECTION_ID);
 		sURIMatcher.addURI(DribbbleContract.AUTHORITY, "*", STREAM);
         sURIMatcher.addURI(DribbbleContract.AUTHORITY, "*/#", STREAM_ID);
 	}
 	
+	// We need a Hashtable instead of a HashMap to be thread-safe
+	private Map<String, Cursor> responseCache = new Hashtable<String, Cursor>();
+	
+	// We need a database for the collection
+	private CollectionDBHelper mCollectionDBHelper;
+	
 	@Override
 	public boolean onCreate() {
 		Log.d("Dribl", "New DribbbleContentProvider instance");
+		
+		mCollectionDBHelper = new CollectionDBHelper(getContext());
+		
 		return true;
 	}
 	
@@ -76,10 +95,16 @@ public class DribbbleContentProvider extends ContentProvider {
 	@Override
 	public String getType(Uri uri) {
 		switch (sURIMatcher.match(uri)) {
+		case COLLECTION:
+		case SEARCH:
 		case STREAM:
 			return DribbbleContract.Image.CONTENT_TYPE;
+
+		case COLLECTION_ID:
+		case SEARCH_ID:
 		case STREAM_ID:
 			return DribbbleContract.Image.CONTENT_ITEM_TYPE;
+
 		default:
 			// Unrecognized URI
 			throw new IllegalArgumentException("Unrecognized URI");
@@ -99,30 +124,52 @@ public class DribbbleContentProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		switch (sURIMatcher.match(uri)) {
+		case COLLECTION:
+		{
+			// Get all items in the collection
+			Cursor cursor = mCollectionDBHelper.getCollection();
+			// The key for the cache needs to be the correct path segment of the URI
+			String key = uri.getPathSegments().get(0);
+			addResponseToMemoryCache(key, cursor);
+			return cursor;
+		}
+		case SEARCH:
+		{
+			if (selection == null || !selection.equals("q = ?") || selectionArgs == null || selectionArgs.length < 1) {
+				throw new IllegalArgumentException("Selection is missing");
+			}
+			// Re-do a search request everytime
+			Cursor cursor = loadSearchAsMatrixCursor(selectionArgs[0]);
+			// The key for the cache needs to be the correct path segment of the URI
+			String key = uri.getPathSegments().get(0);
+			addResponseToMemoryCache(key, cursor);
+			return cursor;
+		}
 		case STREAM:
 		{
 			Cursor cursor;
 			String tableName = uri.getPathSegments().get(0);
-			
-			// Re-do a search request everytime
-			if (tableName.equals("search")) {
-				if (selection == null || !selection.equals("q = ?") || selectionArgs == null || selectionArgs.length < 1) {
-					throw new IllegalArgumentException("Selection is missing");
-				}
-				cursor = loadSearchAsMatrixCursor(selectionArgs[0]);
-				addResponseToMemoryCache(tableName, cursor);	
-			} else {
-				// Ask the cache for this table
-				cursor = responseCache.get(tableName);
-				// Cache miss
-				if (cursor == null) {
-					cursor = loadStreamAsMatrixCursor("http://api.dribbble.com/shots/" + tableName);
-					addResponseToMemoryCache(tableName, cursor);
-				}
+		
+			// Ask the cache for this table
+			cursor = responseCache.get(tableName);
+			// Cache miss
+			if (cursor == null) {
+				cursor = loadStreamAsMatrixCursor("http://api.dribbble.com/shots/" + tableName);
+				addResponseToMemoryCache(tableName, cursor);
 			}
 			
 			return cursor;
-		}	
+		}
+		case COLLECTION_ID:
+			// This is a special case for testing existance.
+			// FOR NORMAL DATA RETRIEVAL FALL THROUGH TO THE NEXT CASE
+			if (projection != null && projection.length > 0 && projection[0].equals("1")) {
+				long id = Long.parseLong(uri.getLastPathSegment());
+				// Checks whether this id is contained in the collection database
+				// If it is, a Cursor with length 1 is returned, otherwise 0
+				return mCollectionDBHelper.exists(id);
+			}
+		case SEARCH_ID:
 		case STREAM_ID:
 		{
 			long id = Long.parseLong(uri.getLastPathSegment());
@@ -360,12 +407,220 @@ public class DribbbleContentProvider extends ContentProvider {
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		throw new UnsupportedOperationException();
+		switch (sURIMatcher.match(uri)) {
+		case COLLECTION_ID:
+			long resultId = mCollectionDBHelper.addToCollection(values);
+			
+			if (resultId == -1) {
+				// Failure
+				return null;
+			} else {
+				// Success
+				return uri;				
+			}
+		default:
+			throw new UnsupportedOperationException();		
+		}
 	}
 	
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		throw new UnsupportedOperationException();
+		switch (sURIMatcher.match(uri)) {
+		case COLLECTION_ID:
+			// Get the id that's specified in the URI
+			long id = Long.parseLong(uri.getLastPathSegment());
+			
+			// Do the deletion and return the number of rows affected
+			return mCollectionDBHelper.removeFromCollection(id);
+			
+		default:
+			throw new UnsupportedOperationException();		
+		}
+	}
+	
+	
+	/**
+	 * This is a class that allows the user to store specific images into a collection
+	 * so that the user can look at those pictures again later. 
+	 * 
+	 * @author jannes
+	 */
+	private class CollectionDBHelper extends SQLiteOpenHelper {
+
+		private final static String DATABASE_NAME = "collection.sqlite";
+		private final static int DATABASE_VERSION = 1;
+		private final static String TABLE_NAME = "collection";
+		
+		/**
+		 * ID column name
+		 * Don't use something generic like just "id" to prevent potential
+		 * column name clashes with BaseColumns._ID
+		 */
+		private final static String COLUMN_ID = "id_collection";
+		
+		/**
+		 * Database creation SQL statement
+		 * 
+		 * Most column names are taken from DribbbleContract.Image
+		 */
+		private final static String DATABASE_CREATE = "create table " + TABLE_NAME + "(" +
+				COLUMN_ID + " integer primary key autoincrement, " +
+				DribbbleContract.Image._ID + " integer, " +
+		        DribbbleContract.Image.URL + " text not null, " +
+		        DribbbleContract.Image.IMAGE_URL + " text not null, " +
+		        DribbbleContract.Image.TITLE + " text not null, " +
+		        DribbbleContract.Image.AUTHOR + " text not null, " +
+		        DribbbleContract.Image.LIKES_COUNT + " integer, " +
+		        DribbbleContract.Image.REBOUNDS_COUNT + " integer, " +
+		        DribbbleContract.Image.COMMENTS_COUNT + " integer" +
+		        ");";
+
+		/**
+		 * Constructor for CollectionDBHelper
+		 * 
+		 * This doesn't open a database connection yet. The actual database opening
+		 * is deferred by SQLiteOpenHelper until needed.
+		 * 
+		 * @param context
+		 * @param name
+		 * @param factory
+		 * @param version
+		 */
+		public CollectionDBHelper(Context context) {
+			super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		}
+
+		/**
+		 * This method called if the database is going to be used, but doesn't exist yet.
+		 * So we have to create the dataase;
+		 */
+		@Override
+		public void onCreate(SQLiteDatabase db) {
+			// Create the database that stores the user's collection
+			db.execSQL(DATABASE_CREATE);
+			
+			// Create an index on the Dribbble ID column for faster searches
+			db.execSQL("CREATE INDEX collection_id_idx ON " + TABLE_NAME + "(" + DribbbleContract.Image._ID + ");");
+		}
+
+		/**
+		 * Upgrades an old database to a newer schema version
+		 */
+		@Override
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			// There is only a single database schema version out there, so no upgrade code is needed yet
+		   Log.d("Dribl", "Upgrading database from version " + oldVersion + " to " + newVersion);
+		}
+		
+		/**
+	     * Add a row to the database
+	     * 
+		 * @param id
+		 * @param url
+		 * @param imageUrl
+		 * @param title
+		 * @param author
+		 * @return id_collection of the created row (Not Dribbble's ID!)
+		 */
+	    @SuppressWarnings("unused")
+		public long addToCollection(long id, String url, String imageUrl, String title, String author) {
+	        ContentValues values = new ContentValues();   
+	        values.put(DribbbleContract.Image._ID, id);
+	        values.put(DribbbleContract.Image.URL, url);
+	        values.put(DribbbleContract.Image.IMAGE_URL, imageUrl);
+	        values.put(DribbbleContract.Image.TITLE, title);
+	        values.put(DribbbleContract.Image.AUTHOR, author);
+	        
+	        // TODO: Add the actual values for these? They can change very quickly,
+	        // so actually a request to the server would be required to retrieve those
+	        // values
+	        values.put(DribbbleContract.Image.LIKES_COUNT, 0);
+	        values.put(DribbbleContract.Image.REBOUNDS_COUNT, 0);
+	        values.put(DribbbleContract.Image.COMMENTS_COUNT, 0);
+	        
+	        return addToCollection(values);
+	    }
+	    
+	    /**
+	     * Add a row to the database
+	     * 
+	     * @param values ContentValues object
+	     * @return id_collection of the created row (Not Dribbble's ID!)
+	     */
+	    public long addToCollection(ContentValues values) {
+	    	SQLiteDatabase db = getWritableDatabase();
+	    	long id = db.insert(TABLE_NAME, null, values);
+	    	db.close();
+	    	
+	    	return id;
+	    }
+	    
+	    /**
+	     * Removes a row from the database
+	     * 
+	     * @param id Dribble's image ID
+	     * @return success
+	     */
+		public int removeFromCollection(long id) {
+			SQLiteDatabase db = getWritableDatabase();
+	    	int rowsAffected = db.delete(
+	    			TABLE_NAME,
+	    			DribbbleContract.Image._ID + "=?",   // where clause
+	    			new String[] { Long.toString(id) }   // where arguments
+	    		);
+	    	db.close();
+	    	
+			return rowsAffected;
+		}
+	    
+	    /**
+	     * Returns a cursor that contains all items in the user's collection
+	     * 
+	     * @return Cursor
+	     */
+	    public Cursor getCollection() {
+	    	SQLiteDatabase db = getReadableDatabase();
+	    	
+	    	Cursor cursor = db.query(TABLE_NAME,
+	    	        null,    // All columns
+	    	        null,    // No selection
+	    	        null,    // No selectionArgs
+	    	        null,    // No group by
+	    	        null,    // No having
+	    	        COLUMN_ID + " DESC"
+	    	        );
+	    	
+	    	// TODO: The cursor is closed by the CursorLoader, but who is closing the db?
+//	    	cursor.close();
+//	    	db.close();
+	    	
+	    	return cursor;
+	    }
+		
+	    /**
+	     * Checks whether an item already is in the collection.
+	     * 
+	     * @param id Dribbble's id for this image
+	     * @return
+	     *   Cursor of length 1 if this id is in the collection,
+	     *   or of length 0 if it isn't
+	     */
+	    public Cursor exists(long id) {
+	    	Log.d("Dribl", "Checking if " + Long.toString(id) + " already exists in the database");
+	    	SQLiteDatabase db = getReadableDatabase();
+	    	
+	    	// Check if this item already is in the collection
+	    	Cursor cursor = db.rawQuery("select 1 from " + TABLE_NAME +
+	    			" where " + DribbbleContract.Image._ID + "=?;",
+	    			new String[] { Long.toString(id) });
+	    	
+	    	// TODO: Who is closing the cursor and the db?
+//	    	cursor.close();
+//	    	db.close();
+	    	
+	    	return cursor;
+	    }
+	    
 	}
 	
 }

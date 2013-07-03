@@ -89,13 +89,17 @@ public class MainActivity extends FragmentActivity {
     	}
     }
     
+    private void setActionBarTitle(int titleResourceId) {
+    	setActionBarTitle(getResources().getString(titleResourceId));
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
         
         // SearchView
-        mSearchItem = (MenuItem) menu.findItem(R.id.menu_search);
+        mSearchItem = menu.findItem(R.id.menu_search);
         mSearchView = (SearchView) mSearchItem.getActionView();
         
         // Set hint
@@ -165,14 +169,18 @@ public class MainActivity extends FragmentActivity {
     	// Close the drawer
     	mDrawerLayout.closeDrawer(mDrawerList);
     	
-    	// Set the ActionBar title
+    	// Reset the ActionBar title
     	setActionBarTitle(null);
     	
     	// Create the new fragment that should be opened
     	Fragment newFragment;
     	if (position == 0) {
-    		// Stream
+    		// Streams
     		newFragment = new StreamPagerFragment();
+    	} else if(position == 1) {
+    		// My Collection
+    		setActionBarTitle(R.string.action_mycollection);
+    		newFragment = StreamFragment.newInstance(DribbbleContract.Image.COLLECTION_URI);
     	} else {
     		// All else
     		newFragment = new HelloWorldFragment();
