@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -26,11 +27,7 @@ public class StreamPagerFragment extends Fragment {
 		DribbbleContract.Image.STREAM_EVERYONE_URI,
 		DribbbleContract.Image.STREAM_DEBUTS_URI
 	};
-	private static final String[] sTitles = {
-		"Popular",
-		"Everyone",
-		"Debuts"
-	};
+	private String[] sTitles;
     
     /**
      * The pager widget, which handles animation and allows swiping horizontally to access previous
@@ -49,8 +46,10 @@ public class StreamPagerFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_stream_viewpager, container, false);
-        
+                
         mPagerAdapter = new ScreenSlidePagerAdapter(getFragmentManager());
+        
+        sTitles = getResources().getStringArray(R.array.stream_titles);
         
         mPager = (ViewPager) view.findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
@@ -68,7 +67,7 @@ public class StreamPagerFragment extends Fragment {
     /**
      * A simple pager adapter that represents 3 objects, in sequence.
      */
-    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+    private class ScreenSlidePagerAdapter extends FragmentPagerAdapter {
     	
     	/**
     	 * Construct a ScreenSlidePagerAdapter
