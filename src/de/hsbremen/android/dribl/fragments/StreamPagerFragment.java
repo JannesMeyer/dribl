@@ -26,11 +26,7 @@ public class StreamPagerFragment extends Fragment {
 		DribbbleContract.Image.STREAM_EVERYONE_URI,
 		DribbbleContract.Image.STREAM_DEBUTS_URI
 	};
-	private static final String[] sTitles = {
-		"Popular",
-		"Everyone",
-		"Debuts"
-	};
+	private String[] sTitles;
     
     /**
      * The pager widget, which handles animation and allows swiping horizontally to access previous
@@ -49,8 +45,10 @@ public class StreamPagerFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_stream_viewpager, container, false);
-        
+                
         mPagerAdapter = new ScreenSlidePagerAdapter(getFragmentManager());
+        
+        sTitles = getResources().getStringArray(R.array.stream_titles);
         
         mPager = (ViewPager) view.findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
