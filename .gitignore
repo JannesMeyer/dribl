@@ -15,5 +15,8 @@ local.properties
 .LSOverride
 ._*
 
+# Windows
+Thumbs.db
+
 # OpenOffice
 .~lock*

@@ -39,19 +39,35 @@ public class DribbbleContentProvider extends ContentProvider {
 	private static final int STREAM = 1;
 	private static final int STREAM_ID = 2;
 	
-	// We need a Hashtable instead of a HashMap to be thread-safe
-	private Map<String, Cursor> responseCache = new Hashtable<String, Cursor>();
+	private static final int SEARCH = 3;
+	private static final int SEARCH_ID = 4;
+	
+	private static final int COLLECTION = 5;
+	private static final int COLLECTION_ID = 6;
 	
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	
 	static {
+        sURIMatcher.addURI(DribbbleContract.AUTHORITY, "search", SEARCH);
+        sURIMatcher.addURI(DribbbleContract.AUTHORITY, "search/#", SEARCH_ID);
+        sURIMatcher.addURI(DribbbleContract.AUTHORITY, "collection", COLLECTION);
+        sURIMatcher.addURI(DribbbleContract.AUTHORITY, "collection/#", COLLECTION_ID);
 		sURIMatcher.addURI(DribbbleContract.AUTHORITY, "*", STREAM);
         sURIMatcher.addURI(DribbbleContract.AUTHORITY, "*/#", STREAM_ID);
 	}
 	
+	// We need a Hashtable instead of a HashMap to be thread-safe
+	private Map<String, Cursor> responseCache = new Hashtable<String, Cursor>();
+	
+	// We need a database for the collection
+	private CollectionDBHelper mCollectionDBHelper;
+	
 	@Override
 	public boolean onCreate() {
 		Log.d("Dribl", "New DribbbleContentProvider instance");
+		
+		mCollectionDBHelper = new CollectionDBHelper(getContext());
+		
 		return true;
 	}
 	
@@ -76,10 +92,16 @@ public class DribbbleContentProvider extends ContentProvider {
 	@Override
 	public String getType(Uri uri) {
 		switch (sURIMatcher.match(uri)) {
+		case COLLECTION:
+		case SEARCH:
 		case STREAM:
 			return DribbbleContract.Image.CONTENT_TYPE;
+
+		case COLLECTION_ID:
+		case SEARCH_ID:
 		case STREAM_ID:
 			return DribbbleContract.Image.CONTENT_ITEM_TYPE;
+
 		default:
 			// Unrecognized URI
 			throw new IllegalArgumentException("Unrecognized URI");
@@ -99,30 +121,52 @@ public class DribbbleContentProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		switch (sURIMatcher.match(uri)) {
+		case COLLECTION:
+		{
+			// Get all items in the collection
+			Cursor cursor = mCollectionDBHelper.getCollection();
+			// The key for the cache needs to be the correct path segment of the URI
+			String key = uri.getPathSegments().get(0);
+			addResponseToMemoryCache(key, cursor);
+			return cursor;
+		}
+		case SEARCH:
+		{
+			if (selection == null || !selection.equals("q = ?") || selectionArgs == null || selectionArgs.length < 1) {
+				throw new IllegalArgumentException("Selection is missing");
+			}
+			// Re-do a search request everytime
+			Cursor cursor = loadSearchAsMatrixCursor(selectionArgs[0]);
+			// The key for the cache needs to be the correct path segment of the URI
+			String key = uri.getPathSegments().get(0);
+			addResponseToMemoryCache(key, cursor);
+			return cursor;
+		}
 		case STREAM:
 		{
 			Cursor cursor;
 			String tableName = uri.getPathSegments().get(0);
-			
-			// Re-do a search request everytime
-			if (tableName.equals("search")) {
-				if (selection == null || !selection.equals("q = ?") || selectionArgs == null || selectionArgs.length < 1) {
-					throw new IllegalArgumentException("Selection is missing");
-				}
-				cursor = loadSearchAsMatrixCursor(selectionArgs[0]);
-				addResponseToMemoryCache(tableName, cursor);	
-			} else {
-				// Ask the cache for this table
-				cursor = responseCache.get(tableName);
-				// Cache miss
-				if (cursor == null) {
-					cursor = loadStreamAsMatrixCursor("http://api.dribbble.com/shots/" + tableName);
-					addResponseToMemoryCache(tableName, cursor);
-				}
+		
+			// Ask the cache for this table
+			cursor = responseCache.get(tableName);
+			// Cache miss
+			if (cursor == null) {
+				cursor = loadStreamAsMatrixCursor("http://api.dribbble.com/shots/" + tableName);
+				addResponseToMemoryCache(tableName, cursor);
 			}
 			
 			return cursor;
-		}	
+		}
+		case COLLECTION_ID:
+			// This is a special case for testing existance.
+			// FOR NORMAL DATA RETRIEVAL FALL THROUGH TO THE NEXT CASE
+			if (projection != null && projection.length > 0 && projection[0].equals("1")) {
+				long id = Long.parseLong(uri.getLastPathSegment());
+				// Checks whether this id is contained in the collection database
+				// If it is, a Cursor with length 1 is returned, otherwise 0
+				return mCollectionDBHelper.exists(id);
+			}
+		case SEARCH_ID:
 		case STREAM_ID:
 		{
 			long id = Long.parseLong(uri.getLastPathSegment());
@@ -360,12 +404,35 @@ public class DribbbleContentProvider extends ContentProvider {
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		throw new UnsupportedOperationException();
+		switch (sURIMatcher.match(uri)) {
+		case COLLECTION_ID:
+			long resultId = mCollectionDBHelper.addToCollection(values);
+			
+			if (resultId == -1) {
+				// Failure
+				return null;
+			} else {
+				// Success
+				return uri;				
+			}
+		default:
+			throw new UnsupportedOperationException();		
+		}
 	}
 	
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		throw new UnsupportedOperationException();
+		switch (sURIMatcher.match(uri)) {
+		case COLLECTION_ID:
+			// Get the id that's specified in the URI
+			long id = Long.parseLong(uri.getLastPathSegment());
+			
+			// Do the deletion and return the number of rows affected
+			return mCollectionDBHelper.removeFromCollection(id);
+			
+		default:
+			throw new UnsupportedOperationException();		
+		}
 	}
 	
 }

@@ -1,10 +1,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/action_addCollection"
+        android:id="@+id/action_add_to_collection"
+        android:icon="@drawable/ic_action_collection_add"
         android:orderInCategory="100"
-        android:showAsAction="always"
-        android:icon="@drawable/ic_action_add"
-        android:title="@string/action_addToCollection"/>
+        android:showAsAction="ifRoom"
+        android:title="@string/action_add_to_collection"/>
+    
+    <item
+        android:id="@+id/action_remove_from_collection"
+        android:icon="@drawable/ic_action_collection_remove"
+        android:orderInCategory="200"
+        android:showAsAction="ifRoom"
+        android:visible="false"
+        android:title="@string/action_remove_from_collection"/>
 
 </menu>
