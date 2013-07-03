@@ -41,6 +41,7 @@ public class DetailActivity extends Activity {
 	private TextView mAuthorText;
 	private MenuItem mAddToCollectionItem;
 	private MenuItem mRemoveFromCollectionItem;
+	private ListView mDetailList;
 	
 	// Data
 	private Shot mShot;
@@ -65,6 +66,7 @@ public class DetailActivity extends Activity {
 		mImageView = (ImageView) findViewById(R.id.image);
 		mTitleText = (TextView) findViewById(R.id.title);
 		mAuthorText = (TextView) findViewById(R.id.author);
+		mDetailList = (ListView) findViewById(R.id.detailList);
 		
 		// Setup action bar
 		mActionBar.setDisplayHomeAsUpEnabled(true);
@@ -121,25 +123,25 @@ public class DetailActivity extends Activity {
 			mTitleText.setText(mShot.title);
 			mAuthorText.setText(mShot.author);
 			
-			// Set stats
+			// Prepare stats
 			texts[0] = mShot.likesCount + " " + texts[0];
-			// TODO: use the real data
-			for (int i = 1; i < texts.length; ++i) {
-				texts[i] = "- " + texts[i]; 
-			}
+			texts[0] = mShot.reboundsCount + " " + texts[0];
+			texts[0] = mShot.commentsCount + " " + texts[0];
+			
+			// Create the ListAdapter
+			mListAdapter = new IconTextArrayAdapter(this, icons, texts, R.layout.row_icontext) {
+				@Override
+				public boolean isEnabled(int position) {
+					// Make all items in this list non-clickable
+					return false;
+				}
+			};
+			
+			// Show the stats
+			mDetailList.setAdapter(mListAdapter);
 		}
 		
-		// Create the listadapter
-		mListAdapter = new IconTextArrayAdapter(this, icons, texts, R.layout.row_icontext) {
-			@Override
-			public boolean isEnabled(int position) {
-				// Make all items in this list non-clickable
-				return false;
-			}
-		};
-		
-		ListView detailList = (ListView) findViewById(R.id.detailList);
-		detailList.setAdapter(mListAdapter);
+
 		
 	}
 	
