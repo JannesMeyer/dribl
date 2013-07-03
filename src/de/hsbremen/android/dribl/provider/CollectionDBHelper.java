@@ -120,7 +120,7 @@ class CollectionDBHelper extends SQLiteOpenHelper {
     public long addToCollection(ContentValues values) {
     	SQLiteDatabase db = getWritableDatabase();
     	long id = db.insert(TABLE_NAME, null, values);
-//    	db.close();
+    	db.close();
     	
     	return id;
     }
@@ -138,7 +138,7 @@ class CollectionDBHelper extends SQLiteOpenHelper {
     			DribbbleContract.Image._ID + "=?",   // where clause
     			new String[] { Long.toString(id) }   // where arguments
     		);
-//    	db.close();
+    	db.close();
     	
 		return rowsAffected;
 	}
